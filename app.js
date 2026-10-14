@@ -211,7 +211,7 @@
   /* ---------- nézegető ---------- */
   const docs = new Map();
   function getDoc(url) {
-    if (!docs.has(url)) docs.set(url, pdfjsLib.getDocument({ url }).promise.catch((e) => { docs.delete(url); throw e; }));
+    if (!docs.has(url)) docs.set(url, pdfjsLib.getDocument({ url, disableAutoFetch: true, disableStream: true, rangeChunkSize: 131072 }).promise.catch((e) => { docs.delete(url); throw e; }));
     return docs.get(url);
   }
   let shown = { url: null, width: 0, holders: [], scale: 1, token: 0, obs: null };
@@ -273,6 +273,8 @@
     if (shown.holders[pos[0]]) renderPage(shown.pdf, shown.holders[pos[0]], shown.scale, shown.token);
     pagesEl.scrollTop = h.offsetTop + pos[1] * shown.scale - 10;
     $('#vOpen').href = `${url}#page=${pos[0]}`;
+    // a másik dokumentum (feladat/útmutató) előtöltése a háttérben
+    const other = v[st.doc === 'fl' ? 'ut' : 'fl']; if (other) getDoc(other).catch(() => {});
   }
   function open(f, keepDoc) {
     st.aktiv = f;
