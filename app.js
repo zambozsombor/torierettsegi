@@ -139,7 +139,7 @@
     };
     document.querySelectorAll('.level button').forEach((b) => {
       b.setAttribute('aria-checked', b.dataset.szint === st.szint);
-      b.onclick = () => { st.szint = b.dataset.szint; document.querySelectorAll('.level button').forEach((x) => x.setAttribute('aria-checked', x === b)); syncVizsgaSelects(); render(); };
+      b.onclick = () => { st.szint = b.dataset.szint; if (st.aktiv && st.aktiv._v.szint !== st.szint) { st.aktiv = null; shown.url = null; shown.token++; $('#vCim').textContent = 'Válassz egy feladatot'; $('#vMeta').textContent = ''; pagesEl.innerHTML = '<div class="empty"><p>Válassz egy feladatot a listából.</p></div>'; } document.querySelectorAll('.level button').forEach((x) => x.setAttribute('aria-checked', x === b)); syncVizsgaSelects(); render(); };
     });
     $('#tabSzures').onclick = () => setMod('szures');
     $('#tabVizsga').onclick = () => setMod('vizsga');
@@ -238,7 +238,6 @@
     }
     pagesEl.style.paddingTop = '12px';
     const obs = new IntersectionObserver((ents) => ents.forEach((e) => { if (e.isIntersecting) renderPage(pdf, e.target, scale, token); }), { root: pagesEl, rootMargin: '800px 0px' });
-    holders.forEach((h) => obs.observe(h));
     shown = { url, width, holders, scale, token, obs, pdf };
     return true;
   }
@@ -272,6 +271,7 @@
     await renderPage(shown.pdf, h, shown.scale, shown.token);
     if (shown.holders[pos[0]]) renderPage(shown.pdf, shown.holders[pos[0]], shown.scale, shown.token);
     pagesEl.scrollTop = h.offsetTop + pos[1] * shown.scale - 10;
+    if (!shown.observing) { shown.observing = true; requestAnimationFrame(() => shown.holders.forEach((x) => shown.obs.observe(x))); }
     $('#vOpen').href = `${url}#page=${pos[0]}`;
     // a másik dokumentum (feladat/útmutató) előtöltése a háttérben
     const other = v[st.doc === 'fl' ? 'ut' : 'fl']; if (other) getDoc(other).catch(() => {});
