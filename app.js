@@ -4,6 +4,10 @@
   const D = window.TORI;
   const $ = (s) => document.querySelector(s);
   pdfjsLib.GlobalWorkerOptions.workerSrc = 'pdfjs/pdf.worker.min.js';
+  // a PDF-olvasó (worker) azonnali indítása a háttérben, hogy az első megnyitásnál már kész legyen
+  let pdfWorker = null;
+  try { pdfWorker = new pdfjsLib.PDFWorker(); } catch (e) { pdfWorker = null; }
+  let progressCb = null;
 
   const vizsgaById = new Map(D.vizsgak.map((v) => [v.id, v]));
   const temaByKod = new Map(D.temak.map((t) => [t.kod, t]));
@@ -211,7 +215,11 @@
   /* ---------- nézegető ---------- */
   const docs = new Map();
   function getDoc(url) {
-    if (!docs.has(url)) docs.set(url, pdfjsLib.getDocument({ url, disableAutoFetch: true, disableStream: true, rangeChunkSize: 131072 }).promise.catch((e) => { docs.delete(url); throw e; }));
+    if (!docs.has(url)) {
+      const task = pdfjsLib.getDocument({ url, worker: pdfWorker || undefined, disableAutoFetch: true, disableStream: true, rangeChunkSize: 131072 });
+      task.onProgress = (p) => { if (progressCb) progressCb(p); };
+      docs.set(url, task.promise.catch((e) => { docs.delete(url); throw e; }));
+    }
     return docs.get(url);
   }
   let shown = { url: null, width: 0, holders: [], scale: 1, token: 0, obs: null };
@@ -219,7 +227,8 @@
 
   async function buildDoc(url) {
     const token = ++shown.token;
-    pagesEl.innerHTML = '<div class="loading">PDF betöltése…</div>';
+    pagesEl.innerHTML = '<div class="loading">Feladat betöltése…</div>';
+    progressCb = (p) => { const el = pagesEl.querySelector('.loading'); if (el && p.loaded) el.textContent = `Feladat betöltése… ${Math.round(p.loaded / 1024)} KB`; };
     const pdf = await getDoc(url);
     if (token !== shown.token) return false;
     const p1 = await pdf.getPage(1);
