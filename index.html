@@ -43,11 +43,7 @@
       <a class="logo" href="https://www.papaimatek.hu/"><span class="l1">Zámbó</span><span>Zsombor</span></a>
       <button class="menu-toggle" id="menuToggle" aria-label="Menü megnyitása" aria-expanded="false"><span></span><span></span><span></span></button>
       <nav class="submenu" id="submenu" aria-label="Menü">
-        <a href="https://www.papaimatek.hu/feladatadatbazis.html">Felvételi feladatok</a>
-        <a href="./" class="active">Érettségi feladatok</a>
-        <a href="https://www.papaimatek.hu/haladas.html">Haladásom</a>
-        <a href="https://www.papaimatek.hu/#arak">Árak</a>
-        <a href="https://www.papaimatek.hu/#jelentkezes">Jelentkezés</a>
+        <a href="https://www.papaimatek.hu/">‹ Vissza a főoldalra</a>
       </nav>
     </div>
     <div class="header-right"><div id="authArea" class="auth-area"></div></div>
@@ -85,7 +81,8 @@
   A feladatlapok és javítási-értékelési útmutatók az Oktatási Hivatal szerzői művei (forrás: oktatas.hu, Feladatkereső – írásbeli érettségi).
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://www.papaimatek.hu/auth.js?v=13"></script>
+<script>window.PM_HALADAS_URL="haladas.html";window.PM_CONTEXT="erettsegi";</script>
+<script src="https://www.papaimatek.hu/auth.js?v=14"></script>
 <script src="https://www.papaimatek.hu/cookie-consent.js"></script>
 <script>
   (function(){ var t=document.getElementById('menuToggle'), m=document.getElementById('submenu'); if(!t||!m) return;
