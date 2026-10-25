@@ -97,7 +97,7 @@ select,input[type=search]{background:var(--paper);border:1px solid var(--line);b
 .pageholder{margin:0 auto 10px;background:#fff;position:relative;box-shadow:0 1px 2px rgba(0,0,0,.25)}
 .pageholder canvas{display:block;width:100%;height:100%}
 .pageholder:empty::before{content:"Oldal betöltése…";position:absolute;top:24px;left:0;right:0;text-align:center;color:#8a929a;font-size:.95rem}
-.empty{background:var(--paper);height:100%;display:flex;align-items:center;justify-content:center;padding:30px}
+.empty{background:var(--paper);height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px}
 .empty p{max-width:44ch;color:var(--muted);text-align:center;font-size:1.05rem}
 .loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:500}
 .foot{padding:14px 24px 22px;color:var(--muted);font-size:.82rem;max-width:110ch}

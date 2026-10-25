@@ -274,7 +274,7 @@
     const pos = slice ? [f.fs[1], f.fs[2]] : (f[st.doc] || [1, 0]);
     const width = Math.min(pagesEl.clientWidth - 24, 980);
     if (shown.url !== url || Math.abs(shown.width - width) > 2) {
-      const ok = await buildDoc(url).catch((e) => { pagesEl.innerHTML = `<div class="empty"><p>A PDF nem tölthető be (${esc(url)}). Ellenőrizd, hogy a pdf mappa a weboldal mellett van-e.</p></div>`; console.error(e); return false; });
+      const ok = await buildDoc(url).catch((e) => { pagesEl.innerHTML = '<div class="empty"><p>A feladat nem tölthető be. Ha közben frissült az oldal, töltsd újra.</p><p><button type="button" class="linkbtn" onclick="location.reload()">Oldal újratöltése</button></p></div>'; console.error(e); return false; });
       if (!ok) return;
     }
     const h = shown.holders[pos[0] - 1];
