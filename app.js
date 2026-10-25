@@ -299,10 +299,11 @@
       const sub = T === 'magy' && f.leiras ? `<span class="r-sub">${esc(f.leiras)}</span>` : '';
       b.innerHTML = `<span class="r-no">${f.n}.</span><span class="r-cim">${esc(f.cim)}</span>${sub}<span class="r-meta">${metaTags(f)}</span>`;
       b.onclick = () => open(f);
-      li.appendChild(b); frag.appendChild(li);
+      li.appendChild(pg.check(f)); li.appendChild(b); frag.appendChild(li);
     });
     ol.appendChild(frag);
     $('#stat').textContent = `${D.feladatok.filter((f) => f._v.szint === st.szint).length} ${st.szint === 'k' ? 'középszintű' : 'emelt szintű'} ${CFG.egyseg}, ${evek[0]}–${evek[evek.length - 1]}`;
+    pg.paint();
     writeUrl();
   }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
@@ -311,7 +312,7 @@
   const docs = new Map();
   function getDoc(url) {
     if (!docs.has(url)) {
-      const task = pdfjsLib.getDocument({ url, worker: pdfWorker || undefined, disableRange: true });
+      const task = pdfjsLib.getDocument({ url, worker: pdfWorker || undefined, disableRange: true, isEvalSupported: false });
       task.onProgress = (p) => { if (progressCb) progressCb(p); };
       docs.set(url, task.promise.catch((e) => { docs.delete(url); throw e; }));
       // legfeljebb 12 dokumentum maradjon a memóriában (a legrégebbit eldobjuk, ha nem az látszik)
@@ -400,6 +401,7 @@
     $('#vMeta').textContent = parts.filter(Boolean).join(' | ');
     document.querySelectorAll('.results button').forEach((b) => b.toggleAttribute('aria-current', b.dataset.id === f.id));
     document.body.classList.add('viewing');
+    pg.paint();
     writeUrl();
     show();
   }
@@ -420,6 +422,57 @@
     if (e.key === 'ArrowLeft' && e.altKey) step(-1);
   });
   let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (st.aktiv && Math.abs(shown.width - Math.min(pagesEl.clientWidth - 24, 980)) > 2) show(); }, 250); });
+
+
+  /* ---------- haladás (papaimatek.hu fiók: auth.js / Supabase) ---------- */
+  const pg = (() => {
+    const PM = window.PM;
+    const done = {};
+    let user = null;
+    const key = (f) => `e:${T}:${f.id}`;
+    const doneBtn = document.createElement('button');
+    doneBtn.type = 'button'; doneBtn.className = 'pm-done'; doneBtn.hidden = true;
+    const nav = document.querySelector('.vbar .nav'); if (nav) nav.insertBefore(doneBtn, nav.firstChild);
+    function toggle(f) {
+      if (!PM) return;
+      if (!user) { if (PM.openLogin) PM.openLogin(); return; }
+      const k = key(f); const now = !done[k]; done[k] = now; paint();
+      PM.saveProgress(k, { status: now ? 'kesz' : '' });
+    }
+    doneBtn.onclick = () => { if (st.aktiv) toggle(st.aktiv); };
+    function check(f) {
+      const c = document.createElement('button');
+      c.type = 'button'; c.className = 'pm-check'; c.dataset.key = key(f);
+      c.title = 'Kész / nincs kész'; c.setAttribute('aria-label', `${f.n}. feladat kész`);
+      c.onclick = (e) => { e.stopPropagation(); toggle(f); };
+      if (!PM) c.hidden = true;
+      return c;
+    }
+    function paint() {
+      document.querySelectorAll('.pm-check').forEach((c) => { const on = !!done[c.dataset.key]; c.classList.toggle('on', on); c.textContent = on ? '✓' : ''; c.setAttribute('aria-pressed', on); });
+      if (PM && st.aktiv) { const on = !!done[key(st.aktiv)]; doneBtn.hidden = false; doneBtn.classList.toggle('on', on); doneBtn.textContent = on ? '✓ Kész' : 'Kész'; }
+      const line = $('#progressLine');
+      if (line) {
+        if (PM && user) {
+          const all = D.feladatok.filter((f) => f._v.szint === st.szint);
+          const n = all.filter((f) => done[key(f)]).length;
+          line.textContent = `Megoldva: ${n} / ${all.length} ${st.szint === 'k' ? 'középszintű' : 'emelt szintű'} ${CFG.egyseg}`;
+        } else line.textContent = PM ? 'Jelentkezz be, és pipáld ki a megoldott feladatokat – a haladásod el lesz mentve.' : '';
+      }
+    }
+    function refresh() {
+      PM.loadProgress().then((map) => {
+        Object.keys(done).forEach((k) => delete done[k]);
+        Object.keys(map || {}).forEach((k) => { if (k.startsWith(`e:${T}:`) && map[k].status === 'kesz') done[k] = true; });
+        paint();
+      });
+    }
+    if (PM) {
+      PM.onChange((u) => { user = u; if (u) refresh(); else { Object.keys(done).forEach((k) => delete done[k]); paint(); } });
+      PM.getUser().then((u) => { user = u; if (u) refresh(); else paint(); });
+    }
+    return { check, paint };
+  })();
 
   /* ---------- indulás ---------- */
   const fid = readUrl();

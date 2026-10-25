@@ -2,26 +2,66 @@
 <html lang="hu">
 <head>
 <meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-VRWQHDJE0Y"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent','default',{'ad_storage':'denied','analytics_storage':'denied','ad_user_data':'denied','ad_personalization':'denied','wait_for_update':500});try{if(localStorage.getItem('pm_cookie_consent')==='granted')gtag('consent','update',{'analytics_storage':'granted'});}catch(e){}gtag('js', new Date());
+  gtag('config', 'G-VRWQHDJE0Y');
+</script>
+<script>
+  // a régi különálló címről (….vercel.app) mindig a papaimatek.hu/erettsegi alá visz
+  (function(){ if(/\.vercel\.app$/.test(location.hostname)){ var p=location.pathname.replace(/^\/erettsegi/,''); location.replace('https://www.papaimatek.hu/erettsegi'+(p||'/')+location.search+location.hash); } })();
+</script>
+
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Történelem érettségi feladatbank</title>
-<meta name="description" content="Az összes közép- és emelt szintű történelem érettségi feladat 2005-től, korszak, témakör, feladattípus és vizsga szerint szűrhetően, beépített PDF-nézegetővel és javítási útmutatóval.">
+<title>Történelem érettségi feladatbank 2005–2026 | papaimatek.hu</title>
+<meta name="description" content="Az összes közép- és emelt szintű történelem érettségi feladat 2005–2026, korszak, témakör, feladattípus és vizsga szerint szűrhetően, javítási útmutatóval. Ingyenes.">
+<link rel="canonical" href="https://www.papaimatek.hu/erettsegi/tori.html">
+<meta property="og:type" content="website"><meta property="og:locale" content="hu_HU"><meta property="og:site_name" content="papaimatek.hu">
+<meta property="og:title" content="Történelem érettségi feladatbank 2005–2026"><meta property="og:description" content="Az összes közép- és emelt szintű történelem érettségi feladat 2005–2026, korszak, témakör, feladattípus és vizsga szerint szűrhetően, javítási útmutatóval. Ingyenes.">
+<meta property="og:url" content="https://www.papaimatek.hu/erettsegi/tori.html"><meta property="og:image" content="https://www.papaimatek.hu/elonezet.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#241150">
+<link rel="icon" href="https://www.papaimatek.hu/favicon.ico" sizes="any">
+<link rel="icon" href="https://www.papaimatek.hu/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="https://www.papaimatek.hu/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Alegreya:wght@500;700;800&family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20261026">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=20261027">
 </head>
 <body data-t="tori">
-  <nav class="subj" aria-label="Tantárgy">
-    <a href="./" class="home" title="Tantárgyválasztó">Érettségi feladatbank</a>
-    <a href="tori.html" aria-current="page">Történelem</a>
-    <a href="matek.html">Matematika</a>
-    <a href="magyar.html">Magyar</a>
-  </nav>
+<header class="pm-header">
+  <div class="header-inner">
+    <div class="header-left">
+      <a class="logo" href="https://www.papaimatek.hu/"><span class="l1" style="color:var(--cream)">Zámbó</span><span>Zsombor</span></a>
+      <button class="menu-toggle" id="menuToggle" aria-label="Menü megnyitása" aria-expanded="false"><span></span><span></span><span></span></button>
+      <nav class="submenu" id="submenu" aria-label="Almenü">
+        <div class="submenu-title">Menü</div>
+        <a href="https://www.papaimatek.hu/">Főoldal</a>
+        <a href="https://www.papaimatek.hu/feladatadatbazis.html">Felvételi feladatbank</a>
+        <a href="./">Érettségi feladatbank</a>
+        <a href="matek.html">&nbsp;&nbsp;– Matematika</a>
+        <a href="magyar.html">&nbsp;&nbsp;– Magyar nyelv és irodalom</a>
+        <a href="tori.html" class="active">&nbsp;&nbsp;– Történelem</a>
+        <a href="https://www.papaimatek.hu/haladas.html">Haladásom</a>
+        <a href="https://www.papaimatek.hu/#szolgaltatasok">Korrepetálás</a>
+      </nav>
+    </div>
+    <div class="header-right"><div id="authArea" class="auth-area"></div></div>
+  </div>
+</header>
 
+  
 <header class="top">
   <div class="brand">
+    <a class="pill" href="./">Érettségi feladatbank</a>
     <h1>Történelem érettségi feladatbank</h1>
     <p class="sub" id="stat">Feladatok betöltése…</p>
+    <nav class="subjtabs" aria-label="Tantárgy"><a href="matek.html">Matematika</a><a href="magyar.html">Magyar</a><a href="tori.html" aria-current="page">Történelem</a></nav>
+    <p class="progressline" id="progressLine"></p>
   </div>
   <div class="level" role="radiogroup" aria-label="Vizsgaszint">
     <button role="radio" data-szint="k" aria-checked="true">Középszint</button>
@@ -109,7 +149,16 @@
 </footer>
 
 <script src="pdfjs/pdf.min.js" defer></script>
-<script src="data.js?v=20261026" defer></script>
-<script src="app.js?v=20261026" defer></script>
+<script src="data.js?v=20261027" defer></script>
+<script src="app.js?v=20261027" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://www.papaimatek.hu/auth.js?v=11"></script>
+<script src="https://www.papaimatek.hu/cookie-consent.js"></script>
+<script>
+  (function(){ var t=document.getElementById('menuToggle'), m=document.getElementById('submenu'); if(!t||!m) return;
+    t.addEventListener('click',function(e){ e.stopPropagation(); var o=m.classList.toggle('open'); t.classList.toggle('open',o); t.setAttribute('aria-expanded',o); });
+    document.addEventListener('click',function(e){ if(!m.contains(e.target)){ m.classList.remove('open'); t.classList.remove('open'); t.setAttribute('aria-expanded',false); } }); })();
+</script>
+
 </body>
 </html>
