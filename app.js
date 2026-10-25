@@ -457,7 +457,7 @@
           const all = D.feladatok.filter((f) => f._v.szint === st.szint);
           const n = all.filter((f) => done[key(f)]).length;
           line.className = 'progressline in';
-          line.innerHTML = `<b>Megoldva: ${n} / ${all.length}</b> ${st.szint === 'k' ? 'középszintű' : 'emelt szintű'} ${CFG.egyseg} · <a href="https://www.papaimatek.hu/haladas.html">Haladásom</a>`;
+          line.innerHTML = `<b>Megoldva: ${n} / ${all.length}</b> ${st.szint === 'k' ? 'középszintű' : 'emelt szintű'} ${CFG.egyseg} · <a href="haladas.html?t=${T}&szint=${st.szint}">Részletes haladás</a>`;
         } else if (PM) {
           line.className = 'progressline nudge';
           line.innerHTML = '<span><b>Kövesd a haladásod!</b> Lépj be, és pipáld ki a megoldott feladatokat – a gépen és a telefonon is megmarad, és a Haladásom oldalon látod, hol tartasz.</span><button type="button" class="nudge-btn">Belépés</button>';
