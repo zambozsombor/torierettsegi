@@ -102,6 +102,49 @@ select,input[type=search]{background:var(--paper);border:1px solid var(--line);b
 .loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:500}
 .foot{padding:14px 24px 22px;color:var(--muted);font-size:.82rem;max-width:110ch}
 
+/* tantárgy-navigáció */
+.subj{display:flex;gap:4px 18px;flex-wrap:wrap;align-items:baseline;padding:12px 24px 0;font-size:.92rem}
+.subj a{color:var(--muted);text-decoration:none;padding:2px 0;border-bottom:2px solid transparent}
+.subj a:hover{color:var(--ink)}
+.subj a[aria-current="page"]{color:var(--ink);border-bottom-color:var(--ink);font-weight:500}
+.subj .home{font:700 .95rem var(--head);color:var(--ink);margin-right:auto}
+.top{padding-top:12px}
+
+/* témasáv (matek, magyar) */
+.band{margin:0 24px;padding:10px 0 14px;display:grid;gap:6px;border-top:1.5px solid var(--ink);border-bottom:1px solid var(--line)}
+.band-mat{grid-template-columns:repeat(5,1fr)}
+.band-magy{display:flex;flex-wrap:wrap}
+.band-magy .seg{flex:1 1 170px}
+.band .seg{background:var(--patina-soft);color:var(--ink)}
+.band-magy .seg{background:var(--ochre-soft)}
+.band .seg:hover{box-shadow:inset 0 0 0 1.5px var(--patina)}
+.band-magy .seg:hover{box-shadow:inset 0 0 0 1.5px var(--ochre)}
+.band .seg[aria-pressed="true"]{background:var(--patina);color:var(--paper)}
+.band-magy .seg[aria-pressed="true"]{background:var(--ochre);color:var(--paper)}
+.seg .rom{font:700 .8rem var(--head);opacity:.7}
+.results .r-meta{grid-column:2}
+.r-sub{grid-column:2;font-size:.85rem;color:var(--muted);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+/* nyitóoldal */
+.landing{min-height:100vh}
+.lhead{padding:56px 24px 28px;max-width:1100px;margin:0 auto;width:100%}
+.lhead h1{font:800 clamp(2rem,4.4vw,3.2rem)/1.05 var(--head);margin:0 0 12px;letter-spacing:-.015em}
+.lhead p{margin:0;max-width:62ch;color:var(--muted);font-size:1.08rem}
+.subjects{flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:18px;padding:8px 24px 40px;max-width:1100px;margin:0 auto;width:100%;align-content:start}
+.subject{position:relative;display:flex;flex-direction:column;gap:8px;padding:20px 20px 18px;background:var(--paper);border:1px solid var(--line);border-radius:10px;color:var(--ink);text-decoration:none;min-height:250px;transition:border-color .15s,transform .15s}
+.subject:hover{border-color:var(--ink);transform:translateY(-2px)}
+.s-name{font:800 1.6rem/1.1 var(--head);margin-top:auto}
+.s-desc{color:var(--muted);font-size:.98rem}
+.s-n{font-weight:500;font-size:.9rem}
+.motif{height:70px;border-radius:6px;overflow:hidden;display:flex;gap:4px}
+.s-tori .motif i{flex:1;background:var(--patina-soft);border-radius:4px}
+.s-tori .motif i:nth-child(2n){background:var(--ochre-soft)}
+.s-tori .motif i:nth-child(4){background:var(--patina)}
+.s-mat .motif{background-color:var(--patina-soft);background-image:linear-gradient(var(--paper) 1px,transparent 1px),linear-gradient(90deg,var(--paper) 1px,transparent 1px);background-size:14px 14px}
+.s-magy .motif{flex-direction:column;justify-content:center;gap:9px;padding:0 4px}
+.s-magy .motif i{height:3px;background:var(--ochre);opacity:.55;border-radius:2px}
+.s-magy .motif i:nth-child(1){width:92%}.s-magy .motif i:nth-child(2){width:80%}.s-magy .motif i:nth-child(3){width:88%}.s-magy .motif i:nth-child(4){width:46%}
+
 @media (max-width:980px){
   .timeline{grid-template-columns:76px repeat(6,minmax(104px,1fr));overflow-x:auto;margin:0;padding-left:0;padding-right:16px}
   .lane-name,.tl-axis span:first-child{position:sticky;left:0;z-index:2;background:var(--bg);padding-left:16px;align-self:stretch;display:flex;align-items:center}
@@ -114,5 +157,13 @@ select,input[type=search]{background:var(--paper);border:1px solid var(--line);b
   body.viewing{overflow:hidden}
   .back{display:block}
   .foot{padding:12px 16px 20px}
+  .subj{padding:10px 16px 0}
+  .subj .home{flex-basis:100%}
+  .band-magy{flex-wrap:nowrap}
+  .band-magy .seg{flex:0 0 160px}
+  .band{margin:0;padding:10px 16px 12px;overflow-x:auto;grid-auto-flow:column;grid-auto-columns:minmax(150px,1fr);grid-template-columns:none}
+  .subjects{grid-template-columns:1fr;padding:4px 16px 28px}
+  .subject{min-height:0}
+  .lhead{padding:32px 16px 20px}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}

@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Történelem érettségi feladatbank</title>
+<meta name="description" content="Az összes közép- és emelt szintű történelem érettségi feladat 2005-től, korszak, témakör, feladattípus és vizsga szerint szűrhetően, beépített PDF-nézegetővel és javítási útmutatóval.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alegreya:wght@500;700;800&family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=20261026">
+</head>
+<body data-t="tori">
+  <nav class="subj" aria-label="Tantárgy">
+    <a href="./" class="home" title="Tantárgyválasztó">Érettségi feladatbank</a>
+    <a href="tori.html" aria-current="page">Történelem</a>
+    <a href="matek.html">Matematika</a>
+    <a href="magyar.html">Magyar</a>
+  </nav>
+
+<header class="top">
+  <div class="brand">
+    <h1>Történelem érettségi feladatbank</h1>
+    <p class="sub" id="stat">Feladatok betöltése…</p>
+  </div>
+  <div class="level" role="radiogroup" aria-label="Vizsgaszint">
+    <button role="radio" data-szint="k" aria-checked="true">Középszint</button>
+    <button role="radio" data-szint="e" aria-checked="false">Emelt szint</button>
+  </div>
+</header>
+
+<section class="timeline" aria-label="Szűrés korszak és témakör szerint">
+  <div class="tl-axis" id="tlAxis"></div>
+  <div class="tl-lane" id="laneE"><span class="lane-name">Egyetemes</span></div>
+  <div class="tl-lane" id="laneM"><span class="lane-name">Magyar</span></div>
+  <div class="tl-lane" id="laneX"><span class="lane-name">Átfogó</span></div>
+</section>
+
+<main class="work">
+  <aside class="panel">
+    <div class="modes" role="tablist">
+      <button role="tab" id="tabSzures" aria-selected="true">Szűrés</button>
+      <button role="tab" id="tabVizsga" aria-selected="false">Böngészés vizsga szerint</button>
+    </div>
+
+    <div id="paneSzures">
+      <div class="filters">
+        <label class="wide">Feladattípus
+          <select id="fTipus">
+            <option value="">Mind</option>
+            <option value="rovid">Rövid választ igénylő</option>
+            <option value="essze">Esszé (minden)</option>
+            <option value="rovidessze">Rövid esszé</option>
+            <option value="hosszuessze">Hosszú esszé</option>
+            <option value="komplexessze">Komplex / elemző esszé</option>
+          </select>
+        </label>
+        <label>Évektől
+          <select id="fTol"></select>
+        </label>
+        <label>Évekig
+          <select id="fIg"></select>
+        </label>
+        <label class="wide">Keresés a feladat címében
+          <input id="fSzoveg" type="search" placeholder="pl. reformkor, Bethlen, hidegháború">
+        </label>
+      </div>
+      <div class="active" id="activeTema"></div>
+    </div>
+
+    <div id="paneVizsga" hidden>
+      <div class="filters">
+        <label>Év <select id="vEv"></select></label>
+        <label>Vizsgaidőszak <select id="vIdo"></select></label>
+      </div>
+    </div>
+
+    <div class="resulthead">
+      <span id="count"></span>
+      <button class="linkbtn" id="reset" type="button">Szűrők törlése</button>
+    </div>
+    <ol class="results" id="results"></ol>
+  </aside>
+
+  <section class="viewer" id="viewer" aria-label="Feladat megtekintése">
+    <div class="vbar">
+      <button class="back" id="vBack" type="button" aria-label="Vissza a listához">‹ Lista</button>
+      <div class="vtitle"><strong id="vCim">Válassz egy feladatot</strong><span id="vMeta"></span></div>
+      <div class="doc" role="tablist">
+        <button role="tab" data-doc="fl" aria-selected="true">Feladat</button>
+        <button role="tab" data-doc="ut" aria-selected="false">Javítási útmutató</button>
+      </div>
+      <div class="nav">
+        <button id="vPrev" type="button" aria-label="Előző feladat">‹</button>
+        <button id="vNext" type="button" aria-label="Következő feladat">›</button>
+        <a id="vOpen" target="_blank" rel="noopener" title="PDF megnyitása új lapon">PDF</a>
+      </div>
+    </div>
+    <div class="pages" id="pages">
+      <div class="empty">
+        <p>Kattints az idővonalon egy korszakra, vagy válassz a listából. A nézegető mindig a feladat elejére ugrik, a javítási útmutatónál pedig a hozzá tartozó részre.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  A feladatlapok és javítási-értékelési útmutatók az Oktatási Hivatal szerzői művei (forrás: oktatas.hu, Feladatkereső – írásbeli érettségi). A 2005–2020 közötti besorolás a hivatalos feladatkeresőből származik, a későbbi feladatoké saját besorolás.
+</footer>
+
+<script src="pdfjs/pdf.min.js" defer></script>
+<script src="data.js?v=20261026" defer></script>
+<script src="app.js?v=20261026" defer></script>
+</body>
+</html>
