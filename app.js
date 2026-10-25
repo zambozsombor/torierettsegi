@@ -216,9 +216,11 @@
   const docs = new Map();
   function getDoc(url) {
     if (!docs.has(url)) {
-      const task = pdfjsLib.getDocument({ url, worker: pdfWorker || undefined, disableAutoFetch: true, disableStream: true, rangeChunkSize: 131072 });
+      const task = pdfjsLib.getDocument({ url, worker: pdfWorker || undefined, disableRange: true });
       task.onProgress = (p) => { if (progressCb) progressCb(p); };
       docs.set(url, task.promise.catch((e) => { docs.delete(url); throw e; }));
+      // legfeljebb 12 dokumentum maradjon a memóriában (a legrégebbit eldobjuk, ha nem az látszik)
+      if (docs.size > 12) { for (const [k, pr] of docs) { if (k !== shown.url && k !== url) { docs.delete(k); pr.then((d) => d.destroy()).catch(() => {}); break; } } }
     }
     return docs.get(url);
   }
@@ -266,9 +268,10 @@
   async function show() {
     const f = st.aktiv; if (!f) return;
     const v = f._v;
-    const url = v[st.doc];
+    const slice = st.doc === 'fl' && f.fs;
+    const url = slice ? f.fs[0] : v[st.doc];
     if (!url) { shown.url = null; pagesEl.innerHTML = '<div class="empty"><p>Ehhez a vizsgához nincs javítási útmutató a gyűjteményben.</p></div>'; return; }
-    const pos = f[st.doc] || [1, 0];
+    const pos = slice ? [f.fs[1], f.fs[2]] : (f[st.doc] || [1, 0]);
     const width = Math.min(pagesEl.clientWidth - 24, 980);
     if (shown.url !== url || Math.abs(shown.width - width) > 2) {
       const ok = await buildDoc(url).catch((e) => { pagesEl.innerHTML = `<div class="empty"><p>A PDF nem tölthető be (${esc(url)}). Ellenőrizd, hogy a pdf mappa a weboldal mellett van-e.</p></div>`; console.error(e); return false; });
@@ -281,9 +284,14 @@
     if (shown.holders[pos[0]]) renderPage(shown.pdf, shown.holders[pos[0]], shown.scale, shown.token);
     pagesEl.scrollTop = h.offsetTop + pos[1] * shown.scale - 10;
     if (!shown.observing) { shown.observing = true; requestAnimationFrame(() => shown.holders.forEach((x) => shown.obs.observe(x))); }
-    $('#vOpen').href = `${url}#page=${pos[0]}`;
+    $('#vOpen').href = slice ? f.fs[0] : `${v[st.doc]}#page=${(f[st.doc] || [1])[0]}`;
     // a másik dokumentum (feladat/útmutató) előtöltése a háttérben
-    const other = v[st.doc === 'fl' ? 'ut' : 'fl']; if (other) getDoc(other).catch(() => {});
+    // előtöltés a háttérben: a másik fül (útmutató / feladat), valamint a lista előző és következő feladata
+    const pre = [];
+    if (st.doc === 'fl') pre.push(v.ut); else pre.push(f.fs ? f.fs[0] : v.fl);
+    const L = st.lista || []; const i = L.findIndex((x) => x.id === f.id);
+    [L[i + 1], L[i - 1]].forEach((x) => { if (x) pre.push(x.fs ? x.fs[0] : x._v.fl); });
+    setTimeout(() => pre.filter(Boolean).forEach((u) => getDoc(u).catch(() => {})), 300);
   }
   function open(f, keepDoc) {
     st.aktiv = f;
