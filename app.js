@@ -456,8 +456,13 @@
         if (PM && user) {
           const all = D.feladatok.filter((f) => f._v.szint === st.szint);
           const n = all.filter((f) => done[key(f)]).length;
-          line.textContent = `Megoldva: ${n} / ${all.length} ${st.szint === 'k' ? 'középszintű' : 'emelt szintű'} ${CFG.egyseg}`;
-        } else line.textContent = PM ? 'Jelentkezz be, és pipáld ki a megoldott feladatokat – a haladásod el lesz mentve.' : '';
+          line.className = 'progressline in';
+          line.innerHTML = `<b>Megoldva: ${n} / ${all.length}</b> ${st.szint === 'k' ? 'középszintű' : 'emelt szintű'} ${CFG.egyseg} · <a href="https://www.papaimatek.hu/haladas.html">Haladásom</a>`;
+        } else if (PM) {
+          line.className = 'progressline nudge';
+          line.innerHTML = '<span><b>Kövesd a haladásod!</b> Lépj be, és pipáld ki a megoldott feladatokat – a gépen és a telefonon is megmarad, és a Haladásom oldalon látod, hol tartasz.</span><button type="button" class="nudge-btn">Belépés</button>';
+          line.querySelector('button').onclick = () => { if (PM.openLogin) PM.openLogin(); };
+        } else line.textContent = '';
       }
     }
     function refresh() {

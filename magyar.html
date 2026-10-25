@@ -29,25 +29,21 @@
 <link rel="apple-touch-icon" href="https://www.papaimatek.hu/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20261027">
+<link href="https://fonts.googleapis.com/css2?family=Alegreya:wght@500;700;800&family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&family=Baloo+2:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=20261028">
 </head>
 <body data-t="magy">
 <header class="pm-header">
   <div class="header-inner">
     <div class="header-left">
-      <a class="logo" href="https://www.papaimatek.hu/"><span class="l1" style="color:var(--cream)">Zámbó</span><span>Zsombor</span></a>
+      <a class="logo" href="https://www.papaimatek.hu/"><span class="l1">Zámbó</span><span>Zsombor</span></a>
       <button class="menu-toggle" id="menuToggle" aria-label="Menü megnyitása" aria-expanded="false"><span></span><span></span><span></span></button>
-      <nav class="submenu" id="submenu" aria-label="Almenü">
-        <div class="submenu-title">Menü</div>
-        <a href="https://www.papaimatek.hu/">Főoldal</a>
-        <a href="https://www.papaimatek.hu/feladatadatbazis.html">Felvételi feladatbank</a>
-        <a href="./">Érettségi feladatbank</a>
-        <a href="matek.html">&nbsp;&nbsp;– Matematika</a>
-        <a href="magyar.html" class="active">&nbsp;&nbsp;– Magyar nyelv és irodalom</a>
-        <a href="tori.html">&nbsp;&nbsp;– Történelem</a>
+      <nav class="submenu" id="submenu" aria-label="Menü">
+        <a href="https://www.papaimatek.hu/feladatadatbazis.html">Felvételi feladatok</a>
+        <a href="./" class="active">Érettségi feladatok</a>
         <a href="https://www.papaimatek.hu/haladas.html">Haladásom</a>
-        <a href="https://www.papaimatek.hu/#szolgaltatasok">Korrepetálás</a>
+        <a href="https://www.papaimatek.hu/#arak">Árak</a>
+        <a href="https://www.papaimatek.hu/#jelentkezes">Jelentkezés</a>
       </nav>
     </div>
     <div class="header-right"><div id="authArea" class="auth-area"></div></div>
@@ -60,7 +56,7 @@
     <h1>Magyar érettségi feladatbank</h1>
     <p class="sub" id="stat">Feladatok betöltése…</p>
     <nav class="subjtabs" aria-label="Tantárgy"><a href="matek.html">Matematika</a><a href="magyar.html" aria-current="page">Magyar</a><a href="tori.html">Történelem</a></nav>
-    <p class="progressline" id="progressLine"></p>
+    <div class="progressline" id="progressLine"></div>
   </div>
   <div class="level" role="radiogroup" aria-label="Vizsgaszint">
     <button role="radio" data-szint="k" aria-checked="true">Középszint</button>
@@ -133,8 +129,8 @@
 </footer>
 
 <script src="pdfjs/pdf.min.js" defer></script>
-<script src="magy/data.js?v=20261027" defer></script>
-<script src="app.js?v=20261027" defer></script>
+<script src="magy/data.js?v=20261028" defer></script>
+<script src="app.js?v=20261028" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://www.papaimatek.hu/auth.js?v=11"></script>
 <script src="https://www.papaimatek.hu/cookie-consent.js"></script>
