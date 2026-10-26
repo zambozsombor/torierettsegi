@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-VRWQHDJE0Y"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent','default',{'ad_storage':'denied','analytics_storage':'denied','ad_user_data':'denied','ad_personalization':'denied','wait_for_update':500});try{if(localStorage.getItem('pm_cookie_consent')==='granted')gtag('consent','update',{'analytics_storage':'granted'});}catch(e){}gtag('js', new Date());
+  gtag('config', 'G-VRWQHDJE0Y');
+</script>
+<script>
+  // a régi különálló címről (….vercel.app) mindig a papaimatek.hu/erettsegi alá visz
+  (function(){ if(/\.vercel\.app$/.test(location.hostname)){ var p=location.pathname.replace(/^\/erettsegi/,''); location.replace('https://www.papaimatek.hu/erettsegi'+(p||'/')+location.search+location.hash); } })();
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Angol érettségi feladatbank 2005–2026 hanganyaggal | papaimatek.hu</title>
+<meta name="description" content="Az összes közép- és emelt szintű angol nyelvi érettségi írásbeli feladat 2005–2026: olvasott szöveg értése, nyelvhelyesség, hallott szöveg értése hanganyaggal, íráskészség – vizsgarész szerint szűrhetően, javítási útmutatóval. Ingyenes.">
+<link rel="canonical" href="https://www.papaimatek.hu/erettsegi/angol.html">
+<meta property="og:type" content="website"><meta property="og:locale" content="hu_HU"><meta property="og:site_name" content="papaimatek.hu">
+<meta property="og:title" content="Angol érettségi feladatbank 2005–2026"><meta property="og:description" content="Az összes közép- és emelt szintű angol nyelvi érettségi írásbeli feladat 2005–2026: olvasott szöveg értése, nyelvhelyesség, hallott szöveg értése hanganyaggal, íráskészség – vizsgarész szerint szűrhetően, javítási útmutatóval. Ingyenes.">
+<meta property="og:url" content="https://www.papaimatek.hu/erettsegi/angol.html"><meta property="og:image" content="https://www.papaimatek.hu/elonezet.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#F6F5EF">
+<link rel="icon" href="https://www.papaimatek.hu/favicon.ico?v=2" sizes="any">
+<link rel="icon" href="https://www.papaimatek.hu/favicon.svg?v=2" type="image/svg+xml">
+<link rel="apple-touch-icon" href="https://www.papaimatek.hu/apple-touch-icon.png?v=2">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alegreya:wght@500;700;800&family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=20261027n">
+</head>
+<body data-t="ang">
+<header class="pm-header">
+  <div class="header-inner">
+    <div class="header-left">
+      <a class="logo" href="https://www.papaimatek.hu/"><span class="l1">Zámbó</span><span>Zsombor</span></a>
+      <button class="menu-toggle" id="menuToggle" aria-label="Menü megnyitása" aria-expanded="false"><span></span><span></span><span></span></button>
+      <nav class="submenu" id="submenu" aria-label="Menü">
+        <a href="https://www.papaimatek.hu/">‹ Vissza a főoldalra</a>
+      </nav>
+    </div>
+    <div class="header-right"><div id="authArea" class="auth-area"></div></div>
+  </div>
+</header>
+
+  <header class="top">
+  <div class="brand">
+    <a class="pill" href="./">Érettségi feladatbank</a>
+    <h1>Angol érettségi feladatbank</h1>
+    <p class="sub" id="stat">Feladatok betöltése…</p>
+    <nav class="subjtabs" aria-label="Tantárgy"><a href="matek.html">Matematika</a><a href="magyar.html">Magyar</a><a href="tori.html">Történelem</a><a href="angol.html" aria-current="page">Angol</a><a href="nemet.html">Német</a></nav>
+    <div class="progressline" id="progressLine"></div>
+  </div>
+  <div class="level" role="radiogroup" aria-label="Vizsgaszint">
+    <button role="radio" data-szint="k" aria-checked="true">Középszint</button>
+    <button role="radio" data-szint="e" aria-checked="false">Emelt szint</button>
+  </div>
+</header>
+
+<section class="band band-nyelv band-ang" id="band" aria-label="Szűrés vizsgarész szerint"></section>
+
+<main class="work">
+  <aside class="panel">
+    <div class="modes" role="tablist">
+      <button role="tab" id="tabSzures" aria-selected="true">Szűrés</button>
+      <button role="tab" id="tabVizsga" aria-selected="false">Böngészés vizsga szerint</button>
+    </div>
+
+    <div id="paneSzures">
+      <div class="filters">
+        <label class="wide">Keresés (a feladat utasításában)
+          <input id="fSzoveg" type="search" placeholder="pl. interview, letter, travel">
+        </label>
+        <label>Évektől
+          <select id="fTol"></select>
+        </label>
+        <label>Évekig
+          <select id="fIg"></select>
+        </label>
+      </div>
+      <div class="active" id="activeTema"></div>
+    </div>
+
+    <div id="paneVizsga" hidden>
+      <div class="filters">
+        <label>Év <select id="vEv"></select></label>
+        <label>Vizsgaidőszak <select id="vIdo"></select></label>
+      </div>
+    </div>
+
+    <div class="resulthead">
+      <span id="count"></span>
+      <button class="linkbtn" id="reset" type="button">Szűrők törlése</button>
+    </div>
+    <ol class="results" id="results"></ol>
+  </aside>
+
+  <section class="viewer" id="viewer" aria-label="Feladat megtekintése">
+    <div class="vbar">
+      <button class="back" id="vBack" type="button" aria-label="Vissza a listához">‹ Lista</button>
+      <div class="vtitle"><strong id="vCim">Válassz egy feladatot</strong><span id="vMeta"></span></div>
+      <div class="doc" role="tablist">
+        <button role="tab" data-doc="fl" aria-selected="true">Feladat</button>
+        <button role="tab" data-doc="ut" aria-selected="false">Javítási útmutató</button>
+      </div>
+      <div class="nav">
+        <button id="vPrev" type="button" aria-label="Előző feladat">‹</button>
+        <button id="vNext" type="button" aria-label="Következő feladat">›</button>
+        <a id="vOpen" target="_blank" rel="noopener" title="PDF megnyitása új lapon">PDF</a>
+      </div>
+    </div>
+    <div class="pages" id="pages">
+      <div class="empty">
+        <p>Válassz vizsgarészt, vagy válassz a listából. A nézegető a feladat elejére ugrik, a javítási útmutatónál a hozzá tartozó részre; a hallott szöveg értése feladatoknál a hanganyag is meghallgatható.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  A feladatlapok, javítási-értékelési útmutatók és hanganyagok az Oktatási Hivatal szerzői művei (forrás: oktatas.hu, Feladatkereső – írásbeli érettségi). A szóbeli vizsgarész nem szerepel.
+</footer>
+
+<script src="pdfjs/pdf.min.js" defer></script>
+<script src="ang/data.js?v=20261027" defer></script>
+<script src="app.js?v=20261027n" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>window.PM_HALADAS_URL="haladas.html";window.PM_CONTEXT="erettsegi";</script>
+<script src="https://www.papaimatek.hu/auth.js?v=17"></script>
+<script src="https://www.papaimatek.hu/cookie-consent.js?v=2"></script>
+<script>
+  (function(){ var t=document.getElementById('menuToggle'), m=document.getElementById('submenu'); if(!t||!m) return;
+    t.addEventListener('click',function(e){ e.stopPropagation(); var o=m.classList.toggle('open'); t.classList.toggle('open',o); t.setAttribute('aria-expanded',o); });
+    document.addEventListener('click',function(e){ if(!m.contains(e.target)){ m.classList.remove('open'); t.classList.remove('open'); t.setAttribute('aria-expanded',false); } }); })();
+</script>
+
+</body>
+</html>

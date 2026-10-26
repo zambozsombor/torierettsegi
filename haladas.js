@@ -7,8 +7,12 @@
     mat: { nev: 'Matematika', page: 'matek.html', data: 'mat/data.js', var: 'DB_MAT', tema: 'Témakörök' },
     magy: { nev: 'Magyar nyelv és irodalom', page: 'magyar.html', data: 'magy/data.js', var: 'DB_MAGY', tema: 'Feladattípusok' },
     tori: { nev: 'Történelem', page: 'tori.html', data: 'data.js', var: 'TORI', tema: 'Témakörök' },
+    ang: { nev: 'Angol nyelv', page: 'angol.html', data: 'ang/data.js', var: 'DB_ANG', tema: 'Vizsgarészek' },
+    nem: { nev: 'Német nyelv', page: 'nemet.html', data: 'nem/data.js', var: 'DB_NEM', tema: 'Vizsgarészek' },
   };
-  const HO = { 'február': 1, 'május': 2, 'május (idegen nyelvű vizsga, magyar feladatlap)': 2.5, 'május 28.': 2.1, 'május 29.': 2.2, 'október': 3 };
+  const TIP = (t) => t === 'magy' || t === 'ang' || t === 'nem';
+  const SZO = (t, tobb) => (t === 'magy' ? (tobb ? 'feladattípusok' : 'feladattípus') : (t === 'ang' || t === 'nem') ? (tobb ? 'vizsgarészek' : 'vizsgarész') : (tobb ? 'témakörök' : 'témakör'));
+  const HO = { 'február': 1, 'május': 2, 'május (idegen nyelvű vizsga, magyar feladatlap)': 2.5, 'május 28.': 2.1, 'május 29.': 2.2, 'október': 3, 'május 30.': 2.2, 'november': 3.5 };
   const VIEWS = [['tema', null], ['ev', 'Évek'], ['vizsga', 'Feladatsorok'], ['vissza', 'Visszanézés']];
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   let PM = null, user = null;
@@ -41,8 +45,8 @@
       sc.onload = () => {
         const D = window[SUBJ[t].var];
         const vz = new Map(D.vizsgak.map((v) => [v.id, v]));
-        const chips = t === 'magy' ? (D.tipusok || []).map((x) => ({ kod: x.kod, nev: x.nev })) : (D.temak || []).map((x) => ({ kod: x.kod, nev: x.rovid }));
-        D.feladatok.forEach((f) => { f._v = vz.get(f.v); f._k = t === 'magy' ? [f.tipus] : (f.tks || []); f._key = `e:${t}:${f.id}`; });
+        const chips = TIP(t) ? (D.tipusok || []).map((x) => ({ kod: x.kod, nev: x.nev })) : (D.temak || []).map((x) => ({ kod: x.kod, nev: x.rovid }));
+        D.feladatok.forEach((f) => { f._v = vz.get(f.v); f._k = TIP(t) ? [f.tipus] : (f.tks || []); f._key = `e:${t}:${f.id}`; });
         res({ D, chips });
       };
       sc.onerror = rej;
@@ -133,12 +137,12 @@
           const rc = (id, nev, T) => { const hard = T.filter((f) => rate[f._key] <= 2).length; return `<a class="hcard" href="${qs({ ...base, nezet: 'vissza', sel: id })}"><span class="hc-t">${esc(nev)}</span><span class="hc-s">${T.length} értékelt · ${hard ? hard + ' nehezen ment' : 'nincs nehéz'}</span>${dist(T)}</a>`; };
           const groups = chips.map((c) => [c, R.filter((f) => f._k.includes(c.kod))]).filter(([, T]) => T.length)
             .sort((a, b) => (b[1].filter((f) => rate[f._key] <= 2).length / b[1].length) - (a[1].filter((f) => rate[f._key] <= 2).length / a[1].length));
-          html += `<p class="rv-intro">Témakörönként látod, hogyan értékelted a megoldott feladatokat (${[1, 2, 3, 4, 5].map((i) => `<span class="rv-key" style="background:${colors[i]}">${i}</span>`).join('')} – 1 = nagyon nehezen, 5 = nagyon jól). Elöl a legtöbb nehézséget okozó ${st.t === 'magy' ? 'feladattípusok' : 'témakörök'}.</p>`;
-          html += '<div class="hgrid">' + rc('*', `Összes ${st.t === 'magy' ? 'feladattípus' : 'témakör'}`, R) + groups.map(([c, T]) => rc(c.kod, c.nev, T)).join('') + '</div>';
+          html += `<p class="rv-intro">Témakörönként látod, hogyan értékelted a megoldott feladatokat (${[1, 2, 3, 4, 5].map((i) => `<span class="rv-key" style="background:${colors[i]}">${i}</span>`).join('')} – 1 = nagyon nehezen, 5 = nagyon jól). Elöl a legtöbb nehézséget okozó ${SZO(st.t, true)}.</p>`;
+          html += '<div class="hgrid">' + rc('*', `Összes ${SZO(st.t)}`, R) + groups.map(([c, T]) => rc(c.kod, c.nev, T)).join('') + '</div>';
         }
       } else {
         const c = chips.find((x) => x.kod === st.s);
-        cr.push([qs({ ...base, nezet: 'vissza', sel: st.s }), st.s === '*' ? `Összes ${st.t === 'magy' ? 'feladattípus' : 'témakör'}` : (c ? c.nev : st.s)]);
+        cr.push([qs({ ...base, nezet: 'vissza', sel: st.s }), st.s === '*' ? `Összes ${SZO(st.t)}` : (c ? c.nev : st.s)]);
         const T = st.s === '*' ? R : R.filter((f) => f._k.includes(st.s));
         const cnt5 = {}; T.forEach((f) => { cnt5[rate[f._key]] = (cnt5[rate[f._key]] || 0) + 1; });
         html += '<div class="rv-filter"><span>Mutasd ezeket:</span>' + [1, 2, 3, 4, 5].map((i) => { const on = st.ert.includes(String(i)); const nxt = on ? st.ert.replace(String(i), '') : (st.ert + i).split('').sort().join(''); return `<a class="rv-chip${on ? ' on' : ''}" style="--rc:${colors[i]}" title="${PM.RATE.labels[i]}" href="${qs({ ...base, nezet: 'vissza', sel: st.s, ert: nxt || '0' })}">${i} <small>(${cnt5[i] || 0})</small></a>`; }).join('') + '</div>';

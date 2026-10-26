@@ -1,8 +1,10 @@
-/* Érettségi feladatbank – szűrő + pdf.js nézegető (történelem, matematika, magyar) */
+/* Érettségi feladatbank – szűrő + pdf.js nézegető (történelem, matematika, magyar, angol, német) */
 (() => {
   'use strict';
   const T = document.body.dataset.t || 'tori';
-  const D = { tori: window.TORI, mat: window.DB_MAT, magy: window.DB_MAGY }[T];
+  const D = { tori: window.TORI, mat: window.DB_MAT, magy: window.DB_MAGY, ang: window.DB_ANG, nem: window.DB_NEM }[T];
+  const NYELV = T === 'ang' || T === 'nem';
+  const TIPUSOS = T === 'magy' || NYELV;
   const $ = (s) => document.querySelector(s);
   if (!D) { const st = $('#stat'); if (st) st.textContent = 'Az adatok nem töltődtek be. Töltsd újra az oldalt.'; return; }
   pdfjsLib.GlobalWorkerOptions.workerSrc = 'pdfjs/pdf.worker.min.js';
@@ -38,19 +40,28 @@
       tag: () => 'm',
       egyseg: 'feladat',
     },
-  }[T];
+  };
+  CFG.ang = CFG.nem = {
+    chips: (D.tipusok || []).map((t) => ({ kod: t.kod, rovid: t.nev, nev: t.nev })),
+    tipusNev: () => '',
+    csoport: (f) => (D.tipusok.find((t) => t.kod === f.tipus) || {}).nev || '',
+    szoveg: (f) => [f.cim, f.leiras],
+    tag: () => 'm',
+    egyseg: 'feladat',
+  };
+  const C = CFG[T];
 
   const vizsgaById = new Map(D.vizsgak.map((v) => [v.id, v]));
-  const chipByKod = new Map(CFG.chips.map((t) => [t.kod, t]));
-  const HO_SORREND = { 'február': 1, 'május': 2, 'május (idegen nyelvű vizsga, magyar feladatlap)': 2.5, 'október': 3 };
+  const chipByKod = new Map(C.chips.map((t) => [t.kod, t]));
+  const HO_SORREND = { 'február': 1, 'május': 2, 'május (idegen nyelvű vizsga, magyar feladatlap)': 2.5, 'október': 3, 'május 30.': 2.2, 'november': 3.5 };
 
   D.feladatok.forEach((f) => {
     const v = vizsgaById.get(f.v);
     f._v = v;
-    if (T === 'magy') f.tks = [f.tipus];
+    if (TIPUSOS) f.tks = [f.tipus];
     if (!f.tks) f.tks = [];
     f._sort = v.ev * 100 + (HO_SORREND[v.ho] || 0) * 10;
-    f._kulcs = CFG.szoveg(f).filter(Boolean).join(' | ').toLocaleLowerCase('hu');
+    f._kulcs = C.szoveg(f).filter(Boolean).join(' | ').toLocaleLowerCase('hu');
   });
 
   /* ---------- állapot ---------- */
@@ -127,7 +138,7 @@
   function buildBand() {
     const band = $('#band');
     if (!band) return;
-    CFG.chips.forEach((t, i) => {
+    C.chips.forEach((t, i) => {
       const b = document.createElement('button');
       b.type = 'button'; b.className = 'seg'; b.dataset.kod = t.kod;
       b.innerHTML = `${T === 'mat' ? `<span class="rom">${t.kod}.</span>` : ''}<span>${t.rovid}</span><span class="n"></span>`;
@@ -142,11 +153,11 @@
     base.forEach((f) => f.tks.forEach((k) => { cnt[k] = (cnt[k] || 0) + 1; }));
     document.querySelectorAll('.seg').forEach((b) => {
       const n = cnt[b.dataset.kod] || 0;
-      b.querySelector('.n').textContent = `${n} ${CFG.egyseg}`;
+      b.querySelector('.n').textContent = `${n} ${C.egyseg}`;
       b.classList.toggle('off', n === 0);
       b.setAttribute('aria-pressed', st.temak.has(b.dataset.kod));
       // magyar: az adott szinten nem létező feladattípus ne foglaljon helyet
-      if (T === 'magy') b.hidden = n === 0 && !st.temak.has(b.dataset.kod) && !D.feladatok.some((f) => f._v.szint === st.szint && f.tipus === b.dataset.kod);
+      if (TIPUSOS) b.hidden = n === 0 && !st.temak.has(b.dataset.kod) && !D.feladatok.some((f) => f._v.szint === st.szint && f.tipus === b.dataset.kod);
     });
   }
 
@@ -257,13 +268,15 @@
   function vizsgaNev(v) { return `${v.ev}. ${v.ho}`; }
   function metaTags(f) {
     const meta = [];
-    if (T === 'magy') {
+    if (NYELV) {
+      /* a vizsgarész a csoportcímben / a sávban látszik */
+    } else if (T === 'magy') {
       if (f.szerzok && f.szerzok.length && !/:/.test(f.cim)) meta.push(esc(f.szerzok.slice(0, 3).join(', ')));
     } else {
-      f.tks.forEach((k) => { const t = chipByKod.get(k); if (t) meta.push(`<span class="tag ${CFG.tag(k)}">${esc(t.rovid)}</span>`); });
+      f.tks.forEach((k) => { const t = chipByKod.get(k); if (t) meta.push(`<span class="tag ${C.tag(k)}">${esc(t.rovid)}</span>`); });
     }
     if (T === 'mat' && f.alt && f.alt.length) meta.push(esc(f.alt.slice(0, 2).join(', ')));
-    const tn = CFG.tipusNev(f); if (tn) meta.push(tn);
+    const tn = C.tipusNev(f); if (tn) meta.push(tn);
     if (f.pont) meta.push(`${f.pont} pont`);
     return meta.join(' ');
   }
@@ -283,26 +296,26 @@
         act.appendChild(b);
       });
     }
-    $('#count').textContent = `${L.length} ${CFG.egyseg}`;
+    $('#count').textContent = `${L.length} ${C.egyseg}`;
     const ol = $('#results');
     ol.innerHTML = '';
     if (!L.length) { ol.innerHTML = '<li class="none">Nincs a szűrésnek megfelelő feladat. Bővítsd az évek körét, vagy vegyél ki egy szűrőt.</li>'; }
     let lastGroup = null;
     const frag = document.createDocumentFragment();
     L.forEach((f) => {
-      const grp = st.mod === 'vizsga' ? CFG.csoport(f) : vizsgaNev(f._v);
+      const grp = st.mod === 'vizsga' ? C.csoport(f) : vizsgaNev(f._v);
       if (grp && grp !== lastGroup) { const g = document.createElement('li'); g.className = 'groupname'; g.textContent = grp; frag.appendChild(g); lastGroup = grp; }
       const li = document.createElement('li');
       const b = document.createElement('button');
       b.type = 'button'; b.dataset.id = f.id;
       if (st.aktiv && st.aktiv.id === f.id) b.setAttribute('aria-current', 'true');
-      const sub = T === 'magy' && f.leiras ? `<span class="r-sub">${esc(f.leiras)}</span>` : '';
+      const sub = TIPUSOS && f.leiras ? `<span class="r-sub">${esc(f.leiras)}</span>` : '';
       b.innerHTML = `<span class="r-no">${f.n}.</span><span class="r-cim">${esc(f.cim)}</span>${sub}<span class="r-meta">${metaTags(f)}</span>`;
       b.onclick = () => open(f);
       li.appendChild(pg.check(f)); li.appendChild(b); frag.appendChild(li);
     });
     ol.appendChild(frag);
-    $('#stat').textContent = `${D.feladatok.filter((f) => f._v.szint === st.szint).length} ${st.szint === 'k' ? 'középszintű' : 'emelt szintű'} ${CFG.egyseg}, ${evek[0]}–${evek[evek.length - 1]}`;
+    $('#stat').textContent = `${D.feladatok.filter((f) => f._v.szint === st.szint).length} ${st.szint === 'k' ? 'középszintű' : 'emelt szintű'} ${C.egyseg}, ${evek[0]}–${evek[evek.length - 1]}`;
     pg.paint();
     writeUrl();
   }
@@ -388,6 +401,21 @@
     [L[i + 1], L[i - 1]].forEach((x) => { if (x) pre.push(x.fs ? x.fs[0] : x._v.fl); });
     setTimeout(() => pre.filter(Boolean).forEach((u) => getDoc(u).catch(() => {})), 300);
   }
+  /* hanganyag a hallott szöveg értése feladatokhoz (a vizsga teljes felvétele) */
+  function hangSav(f) {
+    let box = $('#vHang');
+    const kell = f.tipus === 'hall' && f._v.hang;
+    if (!kell) { if (box) { const au = box.querySelector('audio'); if (au) au.pause(); box.hidden = true; } return; }
+    if (!box) {
+      box = document.createElement('div'); box.id = 'vHang'; box.className = 'vhang';
+      box.innerHTML = '<span class="vhang-l">Hanganyag</span><audio controls preload="none"></audio><a class="vhang-dl" target="_blank" rel="noopener" title="Hanganyag letöltése">Letöltés</a><small>A vizsga teljes felvétele, a feladatok sorrendjében.</small>';
+      $('#viewer .vbar').after(box);
+    }
+    box.hidden = false;
+    const au = box.querySelector('audio');
+    if (au.dataset.src !== f._v.hang) { au.pause(); au.dataset.src = f._v.hang; au.src = f._v.hang; }
+    box.querySelector('.vhang-dl').href = f._v.hang;
+  }
   function open(f, keepDoc) {
     st.aktiv = f;
     if (!keepDoc) st.doc = 'fl';
@@ -395,10 +423,12 @@
     $('#vCim').textContent = `${f.n}. ${f.cim}`;
     const t0 = chipByKod.get(f.tk);
     const parts = [`${vizsgaNev(f._v)}, ${f._v.szint === 'k' ? 'középszint' : 'emelt szint'}`];
-    if (T === 'tori') parts.push(CFG.tipusNev(f), f.pont ? `${f.pont} pont` : '', f.tema || (t0 && t0.nev), f.hiv ? '' : 'saját besorolás');
+    if (T === 'tori') parts.push(C.tipusNev(f), f.pont ? `${f.pont} pont` : '', f.tema || (t0 && t0.nev), f.hiv ? '' : 'saját besorolás');
     if (T === 'mat') parts.push(f.tks.map((k) => (chipByKod.get(k) || {}).rovid).join(', '), (f.alt || []).join(', '), f.pont ? `${f.pont} pont` : '', f.gepi ? 'gépi témakör-besorolás' : '');
+    if (NYELV) parts.push(C.csoport(f), f.pont ? `${f.pont} pont` : '');
     if (T === 'magy') parts.push(f.pont ? `${f.pont} pont` : '', (f.szerzok || []).join(', '));
     $('#vMeta').textContent = parts.filter(Boolean).join(' | ');
+    if (NYELV) hangSav(f);
     document.querySelectorAll('.results button').forEach((b) => b.toggleAttribute('aria-current', b.dataset.id === f.id));
     document.body.classList.add('viewing');
     pg.paint();
@@ -457,7 +487,7 @@
           const n = all.filter((f) => rOf(key(f)) !== null).length;
           const hard = all.filter((f) => { const r = rOf(key(f)); return r && r <= 2; }).length;
           line.className = 'progressline in';
-          line.innerHTML = `<b>Megoldva: ${n} / ${all.length}</b> ${st.szint === 'k' ? 'középszintű' : 'emelt szintű'} ${CFG.egyseg}${hard ? ` · ${hard} nehezen ment` : ''} · <a href="haladas.html?t=${T}&szint=${st.szint}">Részletes haladás</a>${hard ? ` · <a href="haladas.html?t=${T}&szint=${st.szint}&nezet=vissza">Nehezebbek visszanézése</a>` : ''}`;
+          line.innerHTML = `<b>Megoldva: ${n} / ${all.length}</b> ${st.szint === 'k' ? 'középszintű' : 'emelt szintű'} ${C.egyseg}${hard ? ` · ${hard} nehezen ment` : ''} · <a href="haladas.html?t=${T}&szint=${st.szint}">Részletes haladás</a>${hard ? ` · <a href="haladas.html?t=${T}&szint=${st.szint}&nezet=vissza">Nehezebbek visszanézése</a>` : ''}`;
         } else if (PM) {
           line.className = 'progressline nudge';
           line.innerHTML = '<span><b>Kövesd a haladásod!</b> Lépj be, és értékeld 1–5-ig, hogy ment egy-egy feladat – a Haladásom oldalon témakörönként visszanézheted a nehezebbeket.</span><button type="button" class="nudge-btn">Belépés</button>';

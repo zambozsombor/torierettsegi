@@ -35,6 +35,24 @@
      "value": "public, max-age=2592000, immutable"
     }
    ]
+  },
+  {
+   "source": "/ang/pdf/(.*)",
+   "headers": [
+    {
+     "key": "Cache-Control",
+     "value": "public, max-age=2592000, immutable"
+    }
+   ]
+  },
+  {
+   "source": "/nem/pdf/(.*)",
+   "headers": [
+    {
+     "key": "Cache-Control",
+     "value": "public, max-age=2592000, immutable"
+    }
+   ]
   }
  ]
 }
