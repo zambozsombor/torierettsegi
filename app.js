@@ -354,7 +354,7 @@
     const page = await pdf.getPage(+h.dataset.page);
     if (token !== shown.token) return;
     const vp = page.getViewport({ scale });
-    const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+    const dpr = Math.min(Math.max(window.devicePixelRatio || 1, 2), 3, Math.sqrt(16e6 / (vp.width * vp.height)));
     const c = document.createElement('canvas');
     c.width = Math.floor(vp.width * dpr); c.height = Math.floor(vp.height * dpr);
     h.style.height = `${vp.height}px`;
