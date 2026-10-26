@@ -463,7 +463,7 @@
     const rOf = (k) => (k in rate ? rate[k] : null);
     const nav = document.querySelector('.vbar .nav');
     const rateBox = PM && PM.rateInline ? PM.rateInline(null, (n) => { if (st.aktiv) setRate(st.aktiv, n); }) : null;
-    if (rateBox) { rateBox.classList.add('er-rate'); rateBox.hidden = true; if (nav) nav.parentNode.insertBefore(rateBox, nav.nextSibling); }
+    if (rateBox) { rateBox.classList.add('er-rate'); rateBox.hidden = true; if (nav) nav.insertBefore(rateBox, nav.firstChild); }
     function setRate(f, n) {
       if (!PM) return;
       if (!user) { if (PM.openLogin) PM.openLogin(); return; }

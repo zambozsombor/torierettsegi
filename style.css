@@ -367,8 +367,11 @@ body[data-t] .pm-header .header-inner{max-width:none}
 .results li>.pm-rate-chip{flex:none;display:inline-flex;align-items:center;justify-content:center;width:auto;min-width:26px;height:26px;padding:0 5px;margin-left:2px;border-radius:8px;border:2px solid var(--line);background:var(--paper)}
 .results li>.pm-rate-chip.on{background:var(--rc);border-color:var(--rc);color:#fff}
 .hlist .pm-rate-chip{flex:none}
-.vbar .er-rate{margin:0 0 6px}
-.vbar .er-rate .pri-tog{height:30px;font-size:.9rem}
+.vtitle{flex:1 1 0;min-width:180px}
+.nav{align-items:center}
+.nav .er-rate{margin-right:6px}
+.nav .er-rate[hidden]{display:none}
+.nav .er-rate .pri-tog{height:31px;font-size:.9rem;padding:0 9px 0 11px}
 
 /* Visszanézés */
 .rv-intro{color:var(--muted);margin:0 0 12px}
