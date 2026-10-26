@@ -403,6 +403,7 @@
   }
   /* hanganyag a hallott szöveg értése feladatokhoz: csak a feladat saját része szól (f.hs = [kezdet, vég] mp) */
   const H = { box: null, au: null, s: 0, e: 0, f: null };
+  const HANG_BASE = 'https://erettsegi-hang.vercel.app/';
   const mmss = (t) => { t = Math.max(0, Math.round(t)); return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}`; };
   function hangUi() {
     const box = document.createElement('div'); box.id = 'vHang'; box.className = 'vhang';
@@ -421,7 +422,10 @@
       box.querySelector('.vh-time').textContent = `${mmss(p)} / ${mmss(len())}`;
       play.textContent = au.paused ? '▶' : '❚❚'; play.setAttribute('aria-label', au.paused ? 'Lejátszás' : 'Szünet');
     };
-    const go = (t) => { const set = () => { au.currentTime = Math.min(Math.max(t, H.s), H.e); paint(); }; if (au.readyState >= 1) set(); else au.addEventListener('loadedmetadata', set, { once: true }); };
+    let pend = null;
+    const apply = () => { if (pend === null) return; au.currentTime = Math.min(Math.max(pend, H.s), H.e); pend = null; paint(); };
+    const go = (t) => { pend = t; if (au.readyState >= 1) apply(); };
+    au.addEventListener('loadedmetadata', apply);
     play.onclick = () => {
       if (!au.src) return;
       if (au.paused) { if (au.readyState < 1 || au.currentTime < H.s - 0.5 || au.currentTime >= H.e - 0.3) go(H.s); au.play().catch(() => {}); } else au.pause();
@@ -442,8 +446,11 @@
     if (H.f === f) return;
     H.f = f; H.au.pause();
     H.s = f.hs ? f.hs[0] : 0; H.e = f.hs ? f.hs[1] : 1e9;
-        if (H.au.dataset.src !== f._v.hang) { H.au.dataset.src = f._v.hang; H.au.src = f._v.hang; if (!f.hs) H.au.addEventListener('loadedmetadata', () => { H.e = H.au.duration; H.paint(); }, { once: true }); }
-    else H.go(H.s);
+    // azonnali indulás: a feladat megnyitásakor előtölt, és a feladat elejére áll
+    const src = HANG_BASE + f._v.hang.replace(/^hang\//, '');
+    H.au.preload = 'auto';
+    if (H.au.dataset.src !== src) { H.au.dataset.src = src; H.au.src = src; if (!f.hs) H.au.addEventListener('loadedmetadata', () => { H.e = H.au.duration; H.paint(); }, { once: true }); }
+    H.go(H.s);
     H.box.querySelector('.vh-time').textContent = `0:00 / ${f.hs ? mmss(H.e - H.s) : '–'}`;
     H.box.querySelector('.vh-seek').value = 0;
   }
