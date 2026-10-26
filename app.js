@@ -411,6 +411,7 @@
       + '<button type="button" class="vh-back" title="Vissza 10 másodpercet">−10 mp</button>'
       + '<input type="range" class="vh-seek" min="0" max="1000" value="0" aria-label="Pozíció a feladat hanganyagában">'
       + '<span class="vh-time">0:00 / 0:00</span>'
+      + '<span class="vh-msg" role="status" aria-live="polite" hidden></span>'
       + '<button type="button" class="vh-rate" title="Lejátszási sebesség">1×</button>'
       + '<audio preload="none"></audio>';
     $('#viewer .vbar').after(box);
@@ -434,6 +435,14 @@
     seek.oninput = () => go(H.s + seek.value / 1000 * len());
     const rates = [1, 0.9, 0.8, 1.1, 1.25]; let ri = 0;
     box.querySelector('.vh-rate').onclick = (e) => { ri = (ri + 1) % rates.length; au.playbackRate = rates[ri]; e.currentTarget.textContent = `${rates[ri]}×`.replace('.', ','); };
+    // halvány jelzés, ha a hanganyag nem indul el azonnal
+    const msg = box.querySelector('.vh-msg'); let mt = null;
+    const showMsg = (t, delay) => { clearTimeout(mt); mt = setTimeout(() => { msg.textContent = t; msg.hidden = false; }, delay); };
+    const hideMsg = () => { clearTimeout(mt); msg.hidden = true; };
+    au.addEventListener('play', () => { if (au.readyState < 3) showMsg('Pillanat, indul a hanganyag…', 350); });
+    au.addEventListener('waiting', () => { if (!au.paused) showMsg('Pillanat, töltődik a hanganyag…', 350); });
+    ['playing', 'pause', 'emptied'].forEach((ev) => au.addEventListener(ev, hideMsg));
+    au.addEventListener('error', () => { if (au.dataset.src) showMsg('A hanganyag most nem tölthető be. Próbáld újra kicsit később.', 0); });
     au.addEventListener('timeupdate', () => { if (au.currentTime >= H.e) { au.pause(); au.currentTime = H.e; } paint(); });
     ['play', 'pause', 'loadedmetadata'].forEach((ev) => au.addEventListener(ev, paint));
     H.box = box; H.au = au; H.paint = paint; H.go = go;

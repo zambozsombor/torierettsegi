@@ -397,6 +397,10 @@ body[data-t] .pm-header .header-inner{max-width:none}
 .vhang .vh-play:hover{background:var(--patina-d);color:#fff}
 .vh-seek{flex:1 1 auto;min-width:60px;accent-color:var(--patina)}
 .vh-time{flex:none;font:500 .85rem var(--body);font-variant-numeric:tabular-nums;color:var(--ink)}
+.vh-msg{flex:none;font:italic 400 .82rem var(--body);color:var(--muted);animation:vhpulse 1.6s ease-in-out infinite}
+.vh-msg[hidden]{display:none}
+@keyframes vhpulse{50%{opacity:.45}}
+@media (max-width:760px){.vhang{flex-wrap:wrap}.vh-msg{flex-basis:100%}}
 .s-nyelv .motif{display:flex;align-items:center;gap:5px;padding:0 6px}
 .s-nyelv .motif i{flex:1;border-radius:3px;background:var(--patina);opacity:.5;height:30%}
 .s-nem .motif i{background:var(--ochre)}
