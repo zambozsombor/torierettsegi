@@ -401,20 +401,51 @@
     [L[i + 1], L[i - 1]].forEach((x) => { if (x) pre.push(x.fs ? x.fs[0] : x._v.fl); });
     setTimeout(() => pre.filter(Boolean).forEach((u) => getDoc(u).catch(() => {})), 300);
   }
-  /* hanganyag a hallott szöveg értése feladatokhoz (a vizsga teljes felvétele) */
+  /* hanganyag a hallott szöveg értése feladatokhoz: csak a feladat saját része szól (f.hs = [kezdet, vég] mp) */
+  const H = { box: null, au: null, s: 0, e: 0, f: null };
+  const mmss = (t) => { t = Math.max(0, Math.round(t)); return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}`; };
+  function hangUi() {
+    const box = document.createElement('div'); box.id = 'vHang'; box.className = 'vhang';
+    box.innerHTML = '<button type="button" class="vh-play" aria-label="Lejátszás">▶</button>'
+      + '<button type="button" class="vh-back" title="Vissza 10 másodpercet">−10 mp</button>'
+      + '<input type="range" class="vh-seek" min="0" max="1000" value="0" aria-label="Pozíció a feladat hanganyagában">'
+      + '<span class="vh-time">0:00 / 0:00</span>'
+      + '<button type="button" class="vh-rate" title="Lejátszási sebesség">1×</button>'
+      + '<audio preload="none"></audio>';
+    $('#viewer .vbar').after(box);
+    const au = box.querySelector('audio'), play = box.querySelector('.vh-play'), seek = box.querySelector('.vh-seek');
+    const len = () => Math.max(1, H.e - H.s);
+    const paint = () => {
+      const p = Math.min(Math.max(au.currentTime - H.s, 0), len());
+      if (!seek.matches(':active')) seek.value = Math.round(p / len() * 1000);
+      box.querySelector('.vh-time').textContent = `${mmss(p)} / ${mmss(len())}`;
+      play.textContent = au.paused ? '▶' : '❚❚'; play.setAttribute('aria-label', au.paused ? 'Lejátszás' : 'Szünet');
+    };
+    const go = (t) => { const set = () => { au.currentTime = Math.min(Math.max(t, H.s), H.e); paint(); }; if (au.readyState >= 1) set(); else au.addEventListener('loadedmetadata', set, { once: true }); };
+    play.onclick = () => {
+      if (!au.src) return;
+      if (au.paused) { if (au.readyState < 1 || au.currentTime < H.s - 0.5 || au.currentTime >= H.e - 0.3) go(H.s); au.play().catch(() => {}); } else au.pause();
+    };
+    box.querySelector('.vh-back').onclick = () => go(au.currentTime - 10);
+    seek.oninput = () => go(H.s + seek.value / 1000 * len());
+    const rates = [1, 0.9, 0.8, 1.1, 1.25]; let ri = 0;
+    box.querySelector('.vh-rate').onclick = (e) => { ri = (ri + 1) % rates.length; au.playbackRate = rates[ri]; e.currentTarget.textContent = `${rates[ri]}×`.replace('.', ','); };
+    au.addEventListener('timeupdate', () => { if (au.currentTime >= H.e) { au.pause(); au.currentTime = H.e; } paint(); });
+    ['play', 'pause', 'loadedmetadata'].forEach((ev) => au.addEventListener(ev, paint));
+    H.box = box; H.au = au; H.paint = paint; H.go = go;
+  }
   function hangSav(f) {
-    let box = $('#vHang');
     const kell = f.tipus === 'hall' && f._v.hang;
-    if (!kell) { if (box) { const au = box.querySelector('audio'); if (au) au.pause(); box.hidden = true; } return; }
-    if (!box) {
-      box = document.createElement('div'); box.id = 'vHang'; box.className = 'vhang';
-      box.innerHTML = '<span class="vhang-l">Hanganyag</span><audio controls preload="none"></audio><a class="vhang-dl" target="_blank" rel="noopener" title="Hanganyag letöltése">Letöltés</a><small>A vizsga teljes felvétele, a feladatok sorrendjében.</small>';
-      $('#viewer .vbar').after(box);
-    }
-    box.hidden = false;
-    const au = box.querySelector('audio');
-    if (au.dataset.src !== f._v.hang) { au.pause(); au.dataset.src = f._v.hang; au.src = f._v.hang; }
-    box.querySelector('.vhang-dl').href = f._v.hang;
+    if (!kell) { if (H.box) { H.au.pause(); H.box.hidden = true; } return; }
+    if (!H.box) hangUi();
+    H.box.hidden = false;
+    if (H.f === f) return;
+    H.f = f; H.au.pause();
+    H.s = f.hs ? f.hs[0] : 0; H.e = f.hs ? f.hs[1] : 1e9;
+        if (H.au.dataset.src !== f._v.hang) { H.au.dataset.src = f._v.hang; H.au.src = f._v.hang; if (!f.hs) H.au.addEventListener('loadedmetadata', () => { H.e = H.au.duration; H.paint(); }, { once: true }); }
+    else H.go(H.s);
+    H.box.querySelector('.vh-time').textContent = `0:00 / ${f.hs ? mmss(H.e - H.s) : '–'}`;
+    H.box.querySelector('.vh-seek').value = 0;
   }
   function open(f, keepDoc) {
     st.aktiv = f;
