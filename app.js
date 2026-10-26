@@ -427,53 +427,53 @@
   /* ---------- haladás (papaimatek.hu fiók: auth.js / Supabase) ---------- */
   const pg = (() => {
     const PM = window.PM;
-    const done = {};
+    const rate = {};           // kulcs -> 0 (kész, nincs értékelve) vagy 1–5
     let user = null;
     const key = (f) => `e:${T}:${f.id}`;
-    const doneBtn = document.createElement('button');
-    doneBtn.type = 'button'; doneBtn.className = 'pm-done'; doneBtn.hidden = true;
-    const nav = document.querySelector('.vbar .nav'); if (nav) nav.insertBefore(doneBtn, nav.firstChild);
-    function toggle(f) {
+    const rOf = (k) => (k in rate ? rate[k] : null);
+    const nav = document.querySelector('.vbar .nav');
+    const rateBox = PM && PM.rateInline ? PM.rateInline(null, (n) => { if (st.aktiv) setRate(st.aktiv, n); }) : null;
+    if (rateBox) { rateBox.classList.add('er-rate'); rateBox.hidden = true; if (nav) nav.parentNode.insertBefore(rateBox, nav.nextSibling); }
+    function setRate(f, n) {
       if (!PM) return;
       if (!user) { if (PM.openLogin) PM.openLogin(); return; }
-      const k = key(f); const now = !done[k]; done[k] = now; paint();
-      PM.saveProgress(k, { status: now ? 'kesz' : '' });
+      const k = key(f); if (n) rate[k] = n; else delete rate[k]; paint();
+      PM.saveRate(k, n);
     }
-    doneBtn.onclick = () => { if (st.aktiv) toggle(st.aktiv); };
     function check(f) {
       const c = document.createElement('button');
-      c.type = 'button'; c.className = 'pm-check'; c.dataset.key = key(f);
-      c.title = 'Kész / nincs kész'; c.setAttribute('aria-label', `${f.n}. feladat kész`);
-      c.onclick = (e) => { e.stopPropagation(); toggle(f); };
-      if (!PM) c.hidden = true;
+      c.type = 'button'; c.className = 'pm-rate-chip'; c.dataset.key = key(f); c.setAttribute('data-rate-anchor', '');
+      c.onclick = (e) => { e.stopPropagation(); if (!PM) return; if (!user) { if (PM.openLogin) PM.openLogin(); return; } PM.ratePicker(c, rOf(key(f)), (n) => setRate(f, n)); };
+      if (!PM || !PM.rateChip) c.hidden = true;
       return c;
     }
     function paint() {
-      document.querySelectorAll('.pm-check').forEach((c) => { const on = !!done[c.dataset.key]; c.classList.toggle('on', on); c.textContent = on ? '✓' : ''; c.setAttribute('aria-pressed', on); });
-      if (PM && st.aktiv) { const on = !!done[key(st.aktiv)]; doneBtn.hidden = false; doneBtn.classList.toggle('on', on); doneBtn.textContent = on ? '✓ Kész' : 'Kész'; }
+      if (PM && PM.rateChip) document.querySelectorAll('.pm-rate-chip[data-key]').forEach((c) => PM.rateChip(c, rOf(c.dataset.key)));
+      if (rateBox && st.aktiv) { rateBox.hidden = false; rateBox.set(rOf(key(st.aktiv)) || null); }
       const line = $('#progressLine');
       if (line) {
         if (PM && user) {
           const all = D.feladatok.filter((f) => f._v.szint === st.szint);
-          const n = all.filter((f) => done[key(f)]).length;
+          const n = all.filter((f) => rOf(key(f)) !== null).length;
+          const hard = all.filter((f) => { const r = rOf(key(f)); return r && r <= 2; }).length;
           line.className = 'progressline in';
-          line.innerHTML = `<b>Megoldva: ${n} / ${all.length}</b> ${st.szint === 'k' ? 'középszintű' : 'emelt szintű'} ${CFG.egyseg} · <a href="haladas.html?t=${T}&szint=${st.szint}">Részletes haladás</a>`;
+          line.innerHTML = `<b>Megoldva: ${n} / ${all.length}</b> ${st.szint === 'k' ? 'középszintű' : 'emelt szintű'} ${CFG.egyseg}${hard ? ` · ${hard} nehezen ment` : ''} · <a href="haladas.html?t=${T}&szint=${st.szint}">Részletes haladás</a>${hard ? ` · <a href="haladas.html?t=${T}&szint=${st.szint}&nezet=vissza">Nehezebbek visszanézése</a>` : ''}`;
         } else if (PM) {
           line.className = 'progressline nudge';
-          line.innerHTML = '<span><b>Kövesd a haladásod!</b> Lépj be, és pipáld ki a megoldott feladatokat – a gépen és a telefonon is megmarad, és a Haladásom oldalon látod, hol tartasz.</span><button type="button" class="nudge-btn">Belépés</button>';
+          line.innerHTML = '<span><b>Kövesd a haladásod!</b> Lépj be, és értékeld 1–5-ig, hogy ment egy-egy feladat – a Haladásom oldalon témakörönként visszanézheted a nehezebbeket.</span><button type="button" class="nudge-btn">Belépés</button>';
           line.querySelector('button').onclick = () => { if (PM.openLogin) PM.openLogin(); };
         } else line.textContent = '';
       }
     }
     function refresh() {
       PM.loadProgress().then((map) => {
-        Object.keys(done).forEach((k) => delete done[k]);
-        Object.keys(map || {}).forEach((k) => { if (k.startsWith(`e:${T}:`) && map[k].status === 'kesz') done[k] = true; });
+        Object.keys(rate).forEach((k) => delete rate[k]);
+        Object.keys(map || {}).forEach((k) => { if (k.startsWith(`e:${T}:`)) { const r = PM.rateOf(map[k]); if (r !== null) rate[k] = r; } });
         paint();
       });
     }
     if (PM) {
-      PM.onChange((u) => { user = u; if (u) refresh(); else { Object.keys(done).forEach((k) => delete done[k]); paint(); } });
+      PM.onChange((u) => { user = u; if (u) refresh(); else { Object.keys(rate).forEach((k) => delete rate[k]); paint(); } });
       PM.getUser().then((u) => { user = u; if (u) refresh(); else paint(); });
     }
     return { check, paint };

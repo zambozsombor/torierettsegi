@@ -9,17 +9,18 @@
     tori: { nev: 'Történelem', page: 'tori.html', data: 'data.js', var: 'TORI', tema: 'Témakörök' },
   };
   const HO = { 'február': 1, 'május': 2, 'május (idegen nyelvű vizsga, magyar feladatlap)': 2.5, 'május 28.': 2.1, 'május 29.': 2.2, 'október': 3 };
-  const VIEWS = [['tema', null], ['ev', 'Évek'], ['vizsga', 'Feladatsorok']];
+  const VIEWS = [['tema', null], ['ev', 'Évek'], ['vizsga', 'Feladatsorok'], ['vissza', 'Visszanézés']];
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   let PM = null, user = null;
   const done = {};
+  const rate = {};
   const cache = {};
 
   /* ---------- állapot az URL-ben ---------- */
   function state() {
     const q = new URLSearchParams(location.search);
     return { t: SUBJ[q.get('t')] ? q.get('t') : null, sz: ['k', 'e'].includes(q.get('szint')) ? q.get('szint') : null,
-      v: q.get('nezet') || 'tema', s: q.get('sel') || '', s2: q.get('sel2') || '' };
+      v: q.get('nezet') || 'tema', s: q.get('sel') || '', s2: q.get('sel2') || '', ert: q.get('ert') || '12' };
   }
   function go(p, replace) {
     const q = new URLSearchParams();
@@ -99,7 +100,7 @@
     const cr = [['?', 'Tantárgy'], [qs({ t: st.t }), S.nev], [qs(base), szNev]];
     let html = `<div class="overall"><div><b>${cnt(L)} / ${L.length}</b> feladat kész – ${esc(S.nev)}, ${szNev.toLowerCase()}</div>${bar(cnt(L), L.length)}</div>`;
     html += '<div class="vswitch">' + VIEWS.map(([v, nev]) => `<a href="${qs({ ...base, nezet: v })}"${st.v === v ? ' aria-current="page"' : ''}>${nev || S.tema}</a>`).join('') + '</div>';
-    let list = null, title = '';
+    let list = null, title = '', sortOff = false;
     if (st.v === 'tema') {
       if (!st.s) {
         html += '<div class="hgrid">' + chips.map((c) => { const T = L.filter((f) => f._k.includes(c.kod)); return T.length ? card(qs({ ...base, nezet: 'tema', sel: c.kod }), c.nev, '', cnt(T), T.length) : ''; }).join('') + '</div>';
@@ -121,6 +122,30 @@
         cr.push([qs({ ...base, nezet: 'ev', sel: st.s }), st.s], ['', v ? v.ho : st.s2]);
         list = L.filter((f) => f.v === st.s2); title = v ? vizsgaNev(v) : '';
       }
+    } else if (st.v === 'vissza') {
+      const R = L.filter((f) => rate[f._key]);
+      const colors = PM.RATE.colors;
+      const dist = (T) => { const c = {}; T.forEach((f) => { c[rate[f._key]] = (c[rate[f._key]] || 0) + 1; }); return `<div class="rv-dist">${[1, 2, 3, 4, 5].map((i) => c[i] ? `<i style="width:${c[i] / T.length * 100}%;background:${colors[i]}"></i>` : '').join('')}</div>`; };
+      if (!st.s) {
+        if (!R.length) {
+          html += `<div class="gate"><h2>Még nincs értékelt feladatod</h2><p>A feladatbankban minden feladatnál jelöld 1–5-ig, hogy ment (1 = nagyon nehezen, 5 = nagyon jól), és itt témakörönként visszanézheted a nehezebbeket.</p><a class="linkbtn" href="${S.page}${st.sz === 'e' ? '?szint=e' : ''}">Irány a feladatbank →</a></div>`;
+        } else {
+          const rc = (id, nev, T) => { const hard = T.filter((f) => rate[f._key] <= 2).length; return `<a class="hcard" href="${qs({ ...base, nezet: 'vissza', sel: id })}"><span class="hc-t">${esc(nev)}</span><span class="hc-s">${T.length} értékelt · ${hard ? hard + ' nehezen ment' : 'nincs nehéz'}</span>${dist(T)}</a>`; };
+          const groups = chips.map((c) => [c, R.filter((f) => f._k.includes(c.kod))]).filter(([, T]) => T.length)
+            .sort((a, b) => (b[1].filter((f) => rate[f._key] <= 2).length / b[1].length) - (a[1].filter((f) => rate[f._key] <= 2).length / a[1].length));
+          html += `<p class="rv-intro">Témakörönként látod, hogyan értékelted a megoldott feladatokat (${[1, 2, 3, 4, 5].map((i) => `<span class="rv-key" style="background:${colors[i]}">${i}</span>`).join('')} – 1 = nagyon nehezen, 5 = nagyon jól). Elöl a legtöbb nehézséget okozó ${st.t === 'magy' ? 'feladattípusok' : 'témakörök'}.</p>`;
+          html += '<div class="hgrid">' + rc('*', `Összes ${st.t === 'magy' ? 'feladattípus' : 'témakör'}`, R) + groups.map(([c, T]) => rc(c.kod, c.nev, T)).join('') + '</div>';
+        }
+      } else {
+        const c = chips.find((x) => x.kod === st.s);
+        cr.push([qs({ ...base, nezet: 'vissza', sel: st.s }), st.s === '*' ? `Összes ${st.t === 'magy' ? 'feladattípus' : 'témakör'}` : (c ? c.nev : st.s)]);
+        const T = st.s === '*' ? R : R.filter((f) => f._k.includes(st.s));
+        const cnt5 = {}; T.forEach((f) => { cnt5[rate[f._key]] = (cnt5[rate[f._key]] || 0) + 1; });
+        html += '<div class="rv-filter"><span>Mutasd ezeket:</span>' + [1, 2, 3, 4, 5].map((i) => { const on = st.ert.includes(String(i)); const nxt = on ? st.ert.replace(String(i), '') : (st.ert + i).split('').sort().join(''); return `<a class="rv-chip${on ? ' on' : ''}" style="--rc:${colors[i]}" title="${PM.RATE.labels[i]}" href="${qs({ ...base, nezet: 'vissza', sel: st.s, ert: nxt || '0' })}">${i} <small>(${cnt5[i] || 0})</small></a>`; }).join('') + '</div>';
+        list = T.filter((f) => st.ert.includes(String(rate[f._key]))).sort((a, b) => (rate[a._key] - rate[b._key]) || vsort(a._v, b._v) || a.sor - b.sor);
+        title = st.s === '*' ? 'Visszanézés' : (c ? c.nev : '');
+        sortOff = true;
+      }
     } else {
       if (!st.s) {
         const vk = D.vizsgak.filter((v) => v.szint === st.sz).sort(vsort);
@@ -132,22 +157,25 @@
       }
     }
     if (list) {
-      list.sort((a, b) => vsort(a._v, b._v) || a.sor - b.sor);
-      const showV = st.v === 'tema';
-      html += `<h2 class="hq">${esc(title)} <small>${cnt(list)} / ${list.length} kész</small></h2><ol class="hlist">` + list.map((f) => {
-        const on = !!done[f._key];
-        return `<li><button type="button" class="pm-check${on ? ' on' : ''}" data-key="${f._key}" aria-pressed="${on}" title="Kész / nincs kész">${on ? '✓' : ''}</button>`
+      if (!sortOff) list.sort((a, b) => vsort(a._v, b._v) || a.sor - b.sor);
+      const showV = st.v === 'tema' || st.v === 'vissza';
+      html += (st.v === 'vissza' ? `<h2 class="hq">${esc(title)} <small>${list.length} feladat</small></h2>${list.length ? '' : '<p class="muted">Ebben a szűrésben nincs feladat. Válassz más értékelést fent.</p>'}<ol class="hlist">` : `<h2 class="hq">${esc(title)} <small>${cnt(list)} / ${list.length} kész</small></h2><ol class="hlist">`) + list.map((f) => {
+        return `<li><button type="button" class="pm-rate-chip" data-key="${f._key}" data-rate-anchor></button>`
           + `<a href="${S.page}?${st.sz === 'e' ? 'szint=e&' : ''}f=${encodeURIComponent(f.id)}"><span class="hl-n">${f.n}.</span><span class="hl-c">${esc(f.cim)}</span>${showV ? `<span class="hl-v">${esc(vizsgaNev(f._v))}</span>` : ''}</a></li>`;
       }).join('') + '</ol>';
     }
     crumbs(cr);
     app.innerHTML = html;
-    app.querySelectorAll('.pm-check').forEach((b) => {
-      b.onclick = () => {
-        const k = b.dataset.key; const now = !done[k];
-        if (now) done[k] = true; else delete done[k];
-        PM.saveProgress(k, { status: now ? 'kesz' : '' });
-        render();
+    app.querySelectorAll('.pm-rate-chip[data-key]').forEach((b) => {
+      const k = b.dataset.key;
+      PM.rateChip(b, done[k] ? (rate[k] || 0) : null);
+      b.onclick = (e) => {
+        e.stopPropagation();
+        PM.ratePicker(b, done[k] ? (rate[k] || 0) : null, (n) => {
+          if (n) { done[k] = true; rate[k] = n; } else { delete done[k]; delete rate[k]; }
+          PM.saveRate(k, n);
+          render();
+        });
       };
     });
   }
@@ -168,8 +196,8 @@
     if (!u) { $('#gate').hidden = false; app.hidden = true; $('#crumbs').innerHTML = ''; return; }
     $('#gate').hidden = true;
     PM.loadProgress().then((map) => {
-      Object.keys(done).forEach((k) => delete done[k]);
-      Object.keys(map || {}).forEach((k) => { if (k.startsWith('e:') && map[k].status === 'kesz') done[k] = true; });
+      Object.keys(done).forEach((k) => delete done[k]); Object.keys(rate).forEach((k) => delete rate[k]);
+      Object.keys(map || {}).forEach((k) => { if (k.startsWith('e:') && map[k].status === 'kesz') { done[k] = true; const rr = PM.rateOf(map[k]); if (rr) rate[k] = rr; } });
       render();
     });
   }
