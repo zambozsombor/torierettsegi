@@ -34,7 +34,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alegreya:wght@500;700;800&family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20261027s">
+<link rel="stylesheet" href="style.css?v=20261027c">
 <!--seo:ld--><script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "CollectionPage", "name": "Érettségi feladatbank", "url": "https://www.papaimatek.hu/erettsegi/", "inLanguage": "hu", "isPartOf": {"@type": "WebSite", "@id": "https://www.papaimatek.hu/#website"}, "hasPart": [{"@type": "LearningResource", "name": "Matematika érettségi feladatbank", "url": "https://www.papaimatek.hu/erettsegi/matek.html"}, {"@type": "LearningResource", "name": "Magyar nyelv és irodalom érettségi feladatbank", "url": "https://www.papaimatek.hu/erettsegi/magyar.html"}, {"@type": "LearningResource", "name": "Történelem érettségi feladatbank", "url": "https://www.papaimatek.hu/erettsegi/tori.html"}, {"@type": "LearningResource", "name": "Angol nyelv érettségi feladatbank", "url": "https://www.papaimatek.hu/erettsegi/angol.html"}, {"@type": "LearningResource", "name": "Német nyelv érettségi feladatbank", "url": "https://www.papaimatek.hu/erettsegi/nemet.html"}]}, {"@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Honnan származnak a feladatok?", "acceptedAnswer": {"@type": "Answer", "text": "Az írásbeli érettségi feladatlapok és a javítási-értékelési útmutatók az Oktatási Hivatal anyagai (oktatas.hu, Feladatkereső – írásbeli érettségi). A feladatbank ezeket rendszerezi és teszi kereshetővé."}}, {"@type": "Question", "name": "Ingyenes a feladatbank?", "acceptedAnswer": {"@type": "Answer", "text": "Igen, regisztráció nélkül használható. Bejelentkezve a feladatokat 1–5-ig értékelheted, a Haladásom oldalon pedig témánként visszanézheted a nehezebben ment feladatokat."}}, {"@type": "Question", "name": "Megvan a javítási útmutató is?", "acceptedAnswer": {"@type": "Answer", "text": "Igen: minden feladatnál egy kattintással megnyílik a hivatalos javítási-értékelési útmutató, egyenesen a feladathoz tartozó résznél."}}]}]}</script><!--/seo-->
 </head>
 <body class="landing">
@@ -43,9 +43,7 @@
     <div class="header-left">
       <a class="logo" href="https://www.papaimatek.hu/"><span class="l1">Zámbó</span><span>Zsombor</span></a>
       <button class="menu-toggle" id="menuToggle" aria-label="Menü megnyitása" aria-expanded="false"><span></span><span></span><span></span></button>
-      <nav class="submenu" id="submenu" aria-label="Menü">
-        <a href="https://www.papaimatek.hu/">‹ Vissza a főoldalra</a>
-      </nav>
+      <nav class="submenu" id="submenu" aria-label="Menü"><a href="https://www.papaimatek.hu/#arak">Árak</a><a href="https://www.papaimatek.hu/feladatadatbazis.html">Felvételi feladatok</a><a href="https://www.papaimatek.hu/erettsegi/">Érettségi feladatok</a><a href="https://www.papaimatek.hu/haladas.html">Haladásom</a><a href="https://www.papaimatek.hu/#jelentkezes">Jelentkezés</a></nav>
     </div>
     <div class="header-right"><div id="authArea" class="auth-area"></div></div>
   </div>
@@ -58,17 +56,17 @@
 </section>
 
 <main class="subjects">
-  <a class="subject s-tori" href="tori.html">
-    <span class="motif" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>
-    <span class="s-name">Történelem</span>
-    <span class="s-desc">Korszakok és témakörök idővonalon, rövid feladatok és esszék külön szűrhetően.</span>
-    <span class="s-n" id="nTori">2 500+ feladat</span>
-  </a>
   <a class="subject s-mat" href="matek.html">
     <span class="motif" aria-hidden="true"></span>
     <span class="s-name">Matematika</span>
     <span class="s-desc">Öt fő témakör és altémakörök, I. és II. rész, feladattípusok.</span>
     <span class="s-n" id="nMat">1 800+ feladat</span>
+  </a>
+  <a class="subject s-tori" href="tori.html">
+    <span class="motif" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+    <span class="s-name">Történelem</span>
+    <span class="s-desc">Korszakok és témakörök idővonalon, rövid feladatok és esszék külön szűrhetően.</span>
+    <span class="s-n" id="nTori">2 500+ feladat</span>
   </a>
   <a class="subject s-magy" href="magyar.html">
     <span class="motif" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
@@ -90,13 +88,13 @@
   </a>
 </main>
 
-<!--seo:about--><section class="seo-about" aria-label="A feladatbankról"><h2>Az érettségi feladatbankról</h2><p>Öt tantárgy 535 írásbeli érettségi vizsgája és több mint 6 000 feladata 2005 és 2026 között, közép- és emelt szinten, a hivatalos javítási-értékelési útmutatóval. A feladatok tantárgyanként témakör, feladattípus, vizsgarész és vizsgaidőszak szerint szűrhetők; az angol és német hallásértési feladatoknál a feladat saját hanganyaga is meghallgatható.</p><h2>Gyakori kérdések</h2><div class="seo-faq"><details><summary>Honnan származnak a feladatok?</summary><p>Az írásbeli érettségi feladatlapok és a javítási-értékelési útmutatók az Oktatási Hivatal anyagai (oktatas.hu, Feladatkereső – írásbeli érettségi). A feladatbank ezeket rendszerezi és teszi kereshetővé.</p></details><details><summary>Ingyenes a feladatbank?</summary><p>Igen, regisztráció nélkül használható. Bejelentkezve a feladatokat 1–5-ig értékelheted, a Haladásom oldalon pedig témánként visszanézheted a nehezebben ment feladatokat.</p></details><details><summary>Megvan a javítási útmutató is?</summary><p>Igen: minden feladatnál egy kattintással megnyílik a hivatalos javítási-értékelési útmutató, egyenesen a feladathoz tartozó résznél.</p></details></div></section><!--/seo-->
+<!--conv:band--><section class="er-cta" aria-label="Matek korrepetálás"><div class="er-cta-in"><div><b>Elakadtál a matekkal?</b><span>Egyéni matek korrepetálás középiskolásoknak, érettségire is – személyesen Pápán vagy online. 5&nbsp;000&nbsp;Ft / 45&nbsp;perc, <b>az első óra ingyenes</b>.</span></div><div class="er-cta-btns"><a class="er-btn" href="https://forms.gle/BPX5QuBQwEtLPZpPA" target="_blank" rel="noopener">Ingyenes első órát kérek</a><a class="er-btn ghost" href="https://www.papaimatek.hu/#arak">Árak és részletek</a></div></div></section><!--/conv--><!--seo:about--><section class="seo-about" aria-label="A feladatbankról"><h2>Az érettségi feladatbankról</h2><p>Öt tantárgy 535 írásbeli érettségi vizsgája és több mint 6 000 feladata 2005 és 2026 között, közép- és emelt szinten, a hivatalos javítási-értékelési útmutatóval. A feladatok tantárgyanként témakör, feladattípus, vizsgarész és vizsgaidőszak szerint szűrhetők; az angol és német hallásértési feladatoknál a feladat saját hanganyaga is meghallgatható.</p><h2>Gyakori kérdések</h2><div class="seo-faq"><details><summary>Honnan származnak a feladatok?</summary><p>Az írásbeli érettségi feladatlapok és a javítási-értékelési útmutatók az Oktatási Hivatal anyagai (oktatas.hu, Feladatkereső – írásbeli érettségi). A feladatbank ezeket rendszerezi és teszi kereshetővé.</p></details><details><summary>Ingyenes a feladatbank?</summary><p>Igen, regisztráció nélkül használható. Bejelentkezve a feladatokat 1–5-ig értékelheted, a Haladásom oldalon pedig témánként visszanézheted a nehezebben ment feladatokat.</p></details><details><summary>Megvan a javítási útmutató is?</summary><p>Igen: minden feladatnál egy kattintással megnyílik a hivatalos javítási-értékelési útmutató, egyenesen a feladathoz tartozó résznél.</p></details></div></section><!--/seo-->
 <footer class="foot">
-  A feladatlapok és javítási-értékelési útmutatók az Oktatási Hivatal szerzői művei (forrás: oktatas.hu, Feladatkereső – írásbeli érettségi).
+  A feladatlapok és javítási-értékelési útmutatók az Oktatási Hivatal szerzői művei (forrás: oktatas.hu, Feladatkereső – írásbeli érettségi). <br><a href="https://www.papaimatek.hu/">Matek korrepetálás – Zámbó Zsombor</a> · <a href="https://www.papaimatek.hu/haladas.html">Haladásom</a> · <a href="https://www.papaimatek.hu/adatkezeles.html">Adatkezelési tájékoztató</a>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>window.PM_HALADAS_URL="haladas.html";window.PM_CONTEXT="erettsegi";</script>
-<script src="https://www.papaimatek.hu/auth.js?v=19"></script>
+<script src="https://www.papaimatek.hu/auth.js?v=20"></script>
 <script src="https://www.papaimatek.hu/cookie-consent.js?v=2"></script>
 <script>
   (function(){ var t=document.getElementById('menuToggle'), m=document.getElementById('submenu'); if(!t||!m) return;
