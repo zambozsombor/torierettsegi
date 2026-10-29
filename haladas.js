@@ -79,7 +79,7 @@
     if (!st.t) {
       crumbs([['?', 'Tantárgy']]);
       app.innerHTML = '<h2 class="hq">Melyik tantárgy haladását nézed?</h2><div class="hgrid big">' + Object.entries(SUBJ).map(([k, s]) => {
-        const n = Object.keys(done).filter((x) => x.startsWith(`e:${k}:`)).length;
+        const n = Object.keys(done).filter((x) => x.startsWith(`e:${k}:`) && !x.startsWith(`e:${k}:v:`)).length;
         return `<a class="hcard big" href="${qs({ t: k })}"><span class="hc-t">${s.nev}</span><span class="hc-s">${n} kipipált feladat</span></a>`;
       }).join('') + '</div>';
       return;
@@ -153,7 +153,7 @@
     } else {
       if (!st.s) {
         const vk = D.vizsgak.filter((v) => v.szint === st.sz).sort(vsort);
-        html += '<div class="hgrid">' + vk.map((v) => { const T = L.filter((f) => f.v === v.id); return T.length ? card(qs({ ...base, nezet: 'vizsga', sel: v.id }), vizsgaNev(v), '', cnt(T), T.length) : ''; }).join('') + '</div>';
+        html += '<div class="hgrid">' + vk.map((v) => { const T = L.filter((f) => f.v === v.id); return T.length ? card(qs({ ...base, nezet: 'vizsga', sel: v.id }), vizsgaNev(v), done[`e:${st.t}:v:${v.id}`] ? '✓ Teljes feladatsor kész' : '', cnt(T), T.length) : ''; }).join('') + '</div>';
       } else {
         const v = D.vizsgak.find((x) => x.id === st.s);
         cr.push(['', v ? vizsgaNev(v) : st.s]);

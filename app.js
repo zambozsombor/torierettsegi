@@ -181,6 +181,13 @@
   function aktualisVizsga() {
     return D.vizsgak.find((v) => v.szint === st.szint && v.ev === st.vEv && v.ho === st.vIdo);
   }
+  /* teljes feladatsor: a vizsga teljes PDF-je egyben (és nyelveknél a teljes hanganyag) */
+  const teljesCache = new Map();
+  function teljes(v) {
+    if (!teljesCache.has(v.id)) teljesCache.set(v.id, { id: `teljes-${v.id}`, _full: true, _v: v, v: v.id, n: '', sor: 0, cim: 'Teljes feladatsor', fl: [1, 0], ut: [1, 0], tks: [], tipus: NYELV ? 'hall' : '' });
+    return teljesCache.get(v.id);
+  }
+  const pdfNev = (v, d) => `${{ tori: 'tortenelem', mat: 'matek', magy: 'magyar', ang: 'angol', nem: 'nemet' }[T] || T}-erettsegi-${v.id}-${d === 'fl' ? 'feladatlap' : 'utmutato'}.pdf`;
   function lista() {
     if (st.mod === 'vizsga') {
       const v = aktualisVizsga();
@@ -302,6 +309,8 @@
     if (!L.length) { ol.innerHTML = '<li class="none">Nincs a szűrésnek megfelelő feladat. Bővítsd az évek körét, vagy vegyél ki egy szűrőt.</li>'; }
     let lastGroup = null;
     const frag = document.createDocumentFragment();
+    const tv = st.mod === 'vizsga' && aktualisVizsga();
+    if (tv) frag.appendChild(fullCard(tv, L.length));
     L.forEach((f) => {
       const grp = st.mod === 'vizsga' ? C.csoport(f) : vizsgaNev(f._v);
       if (grp && grp !== lastGroup) { const g = document.createElement('li'); g.className = 'groupname'; g.textContent = grp; frag.appendChild(g); lastGroup = grp; }
@@ -318,6 +327,19 @@
     $('#stat').textContent = `${D.feladatok.filter((f) => f._v.szint === st.szint).length} ${st.szint === 'k' ? 'középszintű' : 'emelt szintű'} ${C.egyseg}, ${evek[0]}–${evek[evek.length - 1]}`;
     pg.paint();
     writeUrl();
+  }
+  function fullCard(v, n) {
+    const F = teljes(v);
+    const li = document.createElement('li'); li.className = 'fullexam';
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'fe-open'; b.dataset.id = F.id;
+    if (st.aktiv && st.aktiv.id === F.id) b.setAttribute('aria-current', 'true');
+    b.innerHTML = `<span class="fe-t">Teljes feladatsor megnyitása</span><span class="fe-s">${esc(vizsgaNev(v))}, ${v.szint === 'k' ? 'középszint' : 'emelt szint'} · ${n} ${C.egyseg}${NYELV && v.hang ? ' · teljes hanganyaggal' : ''}</span>`;
+    b.onclick = () => open(F);
+    const dl = document.createElement('div'); dl.className = 'fe-dl';
+    dl.innerHTML = `<span>Letöltés:</span><a href="${esc(v.fl)}" download="${pdfNev(v, 'fl')}">Feladatlap (PDF)</a>${v.ut ? `<a href="${esc(v.ut)}" download="${pdfNev(v, 'ut')}">Javítási útmutató (PDF)</a>` : ''}`;
+    li.appendChild(b); li.appendChild(pg.doneBtn(F)); li.appendChild(dl);
+    return li;
   }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
 
@@ -377,7 +399,7 @@
   async function show() {
     const f = st.aktiv; if (!f) return;
     const v = f._v;
-    const slice = st.doc === 'fl' && f.fs;
+    const slice = st.doc === 'fl' && f.fs && !f._full;
     const url = slice ? f.fs[0] : v[st.doc];
     if (!url) { shown.url = null; pagesEl.innerHTML = '<div class="empty"><p>Ehhez a vizsgához nincs javítási útmutató a gyűjteményben.</p></div>'; return; }
     const pos = slice ? [f.fs[1], f.fs[2]] : (f[st.doc] || [1, 0]);
@@ -420,7 +442,7 @@
     const paint = () => {
       const p = Math.min(Math.max(au.currentTime - H.s, 0), len());
       if (!seek.matches(':active')) seek.value = Math.round(p / len() * 1000);
-      box.querySelector('.vh-time').textContent = `${mmss(p)} / ${mmss(len())}`;
+      box.querySelector('.vh-time').textContent = `${mmss(p)} / ${H.e < 1e8 ? mmss(len()) : '–'}`;
       play.textContent = au.paused ? '▶' : '❚❚'; play.setAttribute('aria-label', au.paused ? 'Lejátszás' : 'Szünet');
     };
     let pend = null;
@@ -458,22 +480,24 @@
     // azonnali indulás: a feladat megnyitásakor előtölt, és a feladat elejére áll
     const src = HANG_BASE + f._v.hang.replace(/^hang\//, '');
     H.au.preload = 'auto';
-    if (H.au.dataset.src !== src) { H.au.dataset.src = src; H.au.src = src; if (!f.hs) H.au.addEventListener('loadedmetadata', () => { H.e = H.au.duration; H.paint(); }, { once: true }); }
+    if (H.au.dataset.src !== src) { H.au.dataset.src = src; H.au.src = src; }
+    if (!f.hs) { const hossz = () => { if (H.f === f && isFinite(H.au.duration)) { H.e = H.au.duration; H.paint(); } }; if (H.au.readyState >= 1) hossz(); else H.au.addEventListener('loadedmetadata', hossz, { once: true }); }
     H.go(H.s);
-    H.box.querySelector('.vh-time').textContent = `0:00 / ${f.hs ? mmss(H.e - H.s) : '–'}`;
+    H.box.querySelector('.vh-time').textContent = `0:00 / ${H.e < 1e8 ? mmss(H.e - H.s) : '–'}`;
     H.box.querySelector('.vh-seek').value = 0;
   }
   function open(f, keepDoc) {
     st.aktiv = f;
     if (!keepDoc) st.doc = 'fl';
     document.querySelectorAll('.doc button').forEach((b) => b.setAttribute('aria-selected', b.dataset.doc === st.doc));
-    $('#vCim').textContent = `${f.n}. ${f.cim}`;
+    $('#vCim').textContent = f._full ? `${vizsgaNev(f._v)} – teljes feladatsor` : `${f.n}. ${f.cim}`;
     const t0 = chipByKod.get(f.tk);
     const parts = [`${vizsgaNev(f._v)}, ${f._v.szint === 'k' ? 'középszint' : 'emelt szint'}`];
     if (T === 'tori') parts.push(C.tipusNev(f), f.pont ? `${f.pont} pont` : '', f.tema || (t0 && t0.nev), f.hiv ? '' : 'saját besorolás');
     if (T === 'mat') parts.push(f.tks.map((k) => (chipByKod.get(k) || {}).rovid).join(', '), (f.alt || []).join(', '), f.pont ? `${f.pont} pont` : '', f.gepi ? 'gépi témakör-besorolás' : '');
     if (NYELV) parts.push(C.csoport(f), f.pont ? `${f.pont} pont` : '');
     if (T === 'magy') parts.push(f.pont ? `${f.pont} pont` : '', (f.szerzok || []).join(', '));
+    if (f._full) parts.splice(1, parts.length, NYELV && f._v.hang ? 'teljes feladatlap és hanganyag' : 'teljes feladatlap');
     $('#vMeta').textContent = parts.filter(Boolean).join(' | ');
     if (NYELV) hangSav(f);
     document.querySelectorAll('.results button').forEach((b) => b.toggleAttribute('aria-current', b.dataset.id === f.id));
@@ -506,7 +530,7 @@
     const PM = window.PM;
     const rate = {};           // kulcs -> 0 (kész, nincs értékelve) vagy 1–5
     let user = null;
-    const key = (f) => `e:${T}:${f.id}`;
+    const key = (f) => (f._full ? `e:${T}:v:${f._v.id}` : `e:${T}:${f.id}`);
     const rOf = (k) => (k in rate ? rate[k] : null);
     const nav = document.querySelector('.vbar .nav');
     const rateBox = PM && PM.rateInline ? PM.rateInline(null, (n) => { if (st.aktiv) setRate(st.aktiv, n); }) : null;
@@ -517,6 +541,22 @@
       const k = key(f); if (n) rate[k] = n; else delete rate[k]; paint();
       PM.saveRate(k, n);
     }
+    // teljes feladatsor: csak „kész” jelölés (nincs nehézségi értékelés)
+    function setDone(f, on) {
+      if (!PM) return;
+      if (!user) { if (PM.openLogin) PM.openLogin(); return; }
+      const k = key(f); if (on) rate[k] = 0; else delete rate[k]; paint();
+      PM.saveProgress(k, on ? { status: 'kesz', score: null } : { status: '', score: null });
+    }
+    function doneBtn(f) {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'fe-done'; b.dataset.fkey = key(f);
+      b.onclick = (e) => { e.stopPropagation(); setDone(f, rOf(key(f)) === null); };
+      if (!PM) b.hidden = true;
+      return b;
+    }
+    const navDone = PM ? doneBtn({ _full: true, _v: {} }) : null;
+    if (navDone) { navDone.hidden = true; navDone.onclick = () => { if (st.aktiv && st.aktiv._full) setDone(st.aktiv, rOf(key(st.aktiv)) === null); }; if (nav) nav.insertBefore(navDone, nav.firstChild); }
     function check(f) {
       const c = document.createElement('button');
       c.type = 'button'; c.className = 'pm-rate-chip'; c.dataset.key = key(f); c.setAttribute('data-rate-anchor', '');
@@ -526,7 +566,14 @@
     }
     function paint() {
       if (PM && PM.rateChip) document.querySelectorAll('.pm-rate-chip[data-key]').forEach((c) => PM.rateChip(c, rOf(c.dataset.key)));
-      if (rateBox && st.aktiv) { rateBox.hidden = false; rateBox.set(rOf(key(st.aktiv)) || null); }
+      if (rateBox && st.aktiv) { rateBox.hidden = !!st.aktiv._full; if (!st.aktiv._full) rateBox.set(rOf(key(st.aktiv)) || null); }
+      if (navDone) { navDone.hidden = !(st.aktiv && st.aktiv._full); if (!navDone.hidden) navDone.dataset.fkey = key(st.aktiv); }
+      document.querySelectorAll('.fe-done[data-fkey]').forEach((b) => {
+        const on = rOf(b.dataset.fkey) !== null;
+        b.classList.toggle('on', on); b.setAttribute('aria-pressed', on);
+        b.innerHTML = on ? '<i>✓</i> Feladatsor kész' : '<i></i> Késznek jelölöm';
+        b.title = on ? 'Kattints a jelölés visszavonásához' : 'A teljes feladatsor megjelölése késznek (a Haladásom oldalon is látszik)';
+      });
       const line = $('#progressLine');
       if (line) {
         if (PM && user) {
@@ -553,7 +600,7 @@
       PM.onChange((u) => { user = u; if (u) refresh(); else { Object.keys(rate).forEach((k) => delete rate[k]); paint(); } });
       PM.getUser().then((u) => { user = u; if (u) refresh(); else paint(); });
     }
-    return { check, paint };
+    return { check, paint, doneBtn };
   })();
 
   /* ---------- indulás ---------- */
@@ -562,6 +609,6 @@
   buildBand();
   initControls();
   setMod(st.mod);
-  if (fid) { const f = D.feladatok.find((x) => x.id === fid); if (f) { const d = st.doc; open(f, true); st.doc = d; } }
+  if (fid) { const fv = /^teljes-/.test(fid) && vizsgaById.get(fid.slice(7)); const f = fv ? teljes(fv) : D.feladatok.find((x) => x.id === fid); if (f) { const d = st.doc; open(f, true); st.doc = d; } }
   if (!fid) document.body.classList.remove('viewing');
 })();
