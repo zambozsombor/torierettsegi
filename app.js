@@ -337,7 +337,7 @@
     b.innerHTML = `<span class="fe-t">Teljes feladatsor megnyitása</span><span class="fe-s">${esc(vizsgaNev(v))}, ${v.szint === 'k' ? 'középszint' : 'emelt szint'} · ${n} ${C.egyseg}${NYELV && v.hang ? ' · teljes hanganyaggal' : ''}</span>`;
     b.onclick = () => open(F);
     const dl = document.createElement('div'); dl.className = 'fe-dl';
-    dl.innerHTML = `<span>Letöltés:</span><a href="${esc(v.fl)}" download="${pdfNev(v, 'fl')}">Feladatlap (PDF)</a>${v.ut ? `<a href="${esc(v.ut)}" download="${pdfNev(v, 'ut')}">Javítási útmutató (PDF)</a>` : ''}`;
+    dl.innerHTML = `<span>Letöltés:</span><a href="${esc(v.fl)}?v=2" download="${pdfNev(v, 'fl')}">Feladatlap (PDF)</a>${v.ut ? `<a href="${esc(v.ut)}" download="${pdfNev(v, 'ut')}">Javítási útmutató (PDF)</a>` : ''}`;
     li.appendChild(b); li.appendChild(pg.doneBtn(F)); li.appendChild(dl);
     return li;
   }
@@ -400,7 +400,7 @@
     const f = st.aktiv; if (!f) return;
     const v = f._v;
     const slice = st.doc === 'fl' && f.fs && !f._full;
-    const url = slice ? f.fs[0] : v[st.doc];
+    const url = slice ? f.fs[0] : v[st.doc] + (f._full && st.doc === 'fl' ? '?v=2' : '');
     if (!url) { shown.url = null; pagesEl.innerHTML = '<div class="empty"><p>Ehhez a vizsgához nincs javítási útmutató a gyűjteményben.</p></div>'; return; }
     const pos = slice ? [f.fs[1], f.fs[2]] : (f[st.doc] || [1, 0]);
     const width = Math.min(pagesEl.clientWidth - 24, 980);
