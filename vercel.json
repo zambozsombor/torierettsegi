@@ -53,6 +53,78 @@
      "value": "public, max-age=2592000, immutable"
     }
    ]
+  },
+  {
+   "source": "/bio/pdf/(.*)",
+   "headers": [
+    {
+     "key": "Cache-Control",
+     "value": "public, max-age=2592000, immutable"
+    }
+   ]
+  },
+  {
+   "source": "/bio/fl/(.*)",
+   "headers": [
+    {
+     "key": "Cache-Control",
+     "value": "public, max-age=2592000, immutable"
+    }
+   ]
+  },
+  {
+   "source": "/kem/pdf/(.*)",
+   "headers": [
+    {
+     "key": "Cache-Control",
+     "value": "public, max-age=2592000, immutable"
+    }
+   ]
+  },
+  {
+   "source": "/kem/fl/(.*)",
+   "headers": [
+    {
+     "key": "Cache-Control",
+     "value": "public, max-age=2592000, immutable"
+    }
+   ]
+  },
+  {
+   "source": "/fiz/pdf/(.*)",
+   "headers": [
+    {
+     "key": "Cache-Control",
+     "value": "public, max-age=2592000, immutable"
+    }
+   ]
+  },
+  {
+   "source": "/fiz/fl/(.*)",
+   "headers": [
+    {
+     "key": "Cache-Control",
+     "value": "public, max-age=2592000, immutable"
+    }
+   ]
+  },
+  {
+   "source": "/foldr/pdf/(.*)",
+   "headers": [
+    {
+     "key": "Cache-Control",
+     "value": "public, max-age=2592000, immutable"
+    }
+   ]
+  },
+  {
+   "source": "/foldr/fl/(.*)",
+   "headers": [
+    {
+     "key": "Cache-Control",
+     "value": "public, max-age=2592000, immutable"
+    }
+   ]
   }
  ]
 }

@@ -436,3 +436,13 @@ button.fe-done,.results li.fullexam>button.fe-done{flex:none;display:inline-flex
 .fe-done.on i{border-color:#fff;background:#fff;color:var(--patina)}
 .nav .fe-done{height:31px;margin-right:6px}
 .nav .fe-done[hidden]{display:none}
+
+/* természettudományos tárgyak: témasáv és nyitóoldali kártyák */
+.band-sci{display:flex;flex-wrap:wrap}
+.band-sci .seg{flex:1 1 150px}
+@media (max-width:980px){.band-sci{flex-wrap:nowrap}.band-sci .seg{flex:0 0 160px}}
+.s-bio .motif{background:radial-gradient(circle at 22% 45%,var(--patina) 0 9px,transparent 10px),radial-gradient(circle at 22% 45%,var(--patina-soft) 0 22px,transparent 23px),radial-gradient(circle at 62% 55%,var(--ochre-soft) 0 26px,transparent 27px),radial-gradient(circle at 86% 30%,var(--patina-soft) 0 14px,transparent 15px)}
+.s-kem .motif{background-image:radial-gradient(circle,var(--patina) 0 4px,transparent 5px),radial-gradient(circle,var(--ochre-soft) 0 9px,transparent 10px);background-size:34px 34px,34px 34px;background-position:0 0,17px 17px;background-color:var(--patina-soft)}
+.s-fiz .motif{background:repeating-linear-gradient(90deg,transparent 0 22px,var(--paper) 22px 24px),linear-gradient(180deg,var(--patina-soft),var(--patina-soft));position:relative}
+.s-fiz .motif::after{content:'';position:absolute;left:0;right:0;top:50%;height:22px;margin-top:-11px;background:radial-gradient(ellipse 18px 10px at 18px 0,transparent 9px,var(--patina) 10px 11px,transparent 12px) 0 0/36px 22px repeat-x}
+.s-foldr .motif{background:repeating-radial-gradient(ellipse at 70% 60%,var(--patina-soft) 0 7px,var(--paper) 7px 9px,var(--ochre-soft) 9px 15px,var(--paper) 15px 17px)}

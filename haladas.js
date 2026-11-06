@@ -9,6 +9,10 @@
     tori: { nev: 'Történelem', page: 'tori.html', data: 'data.js', var: 'TORI', tema: 'Témakörök' },
     ang: { nev: 'Angol nyelv', page: 'angol.html', data: 'ang/data.js', var: 'DB_ANG', tema: 'Vizsgarészek' },
     nem: { nev: 'Német nyelv', page: 'nemet.html', data: 'nem/data.js', var: 'DB_NEM', tema: 'Vizsgarészek' },
+    bio: { nev: 'Biológia', page: 'biologia.html', data: 'bio/data.js', var: 'DB_BIO', tema: 'Témakörök' },
+    kem: { nev: 'Kémia', page: 'kemia.html', data: 'kem/data.js', var: 'DB_KEM', tema: 'Témakörök' },
+    fiz: { nev: 'Fizika', page: 'fizika.html', data: 'fiz/data.js', var: 'DB_FIZ', tema: 'Témakörök' },
+    foldr: { nev: 'Földrajz', page: 'foldrajz.html', data: 'foldr/data.js', var: 'DB_FOLDR', tema: 'Témakörök' },
   };
   const TIP = (t) => t === 'magy' || t === 'ang' || t === 'nem';
   const SZO = (t, tobb) => (t === 'magy' ? (tobb ? 'feladattípusok' : 'feladattípus') : (t === 'ang' || t === 'nem') ? (tobb ? 'vizsgarészek' : 'vizsgarész') : (tobb ? 'témakörök' : 'témakör'));
@@ -41,7 +45,7 @@
     if (cache[t]) return cache[t];
     cache[t] = new Promise((res, rej) => {
       const sc = document.createElement('script');
-      sc.src = SUBJ[t].data + '?v=20261028';
+      sc.src = SUBJ[t].data + '?v=20261106';
       sc.onload = () => {
         const D = window[SUBJ[t].var];
         const vz = new Map(D.vizsgak.map((v) => [v.id, v]));

@@ -1,10 +1,12 @@
-/* Érettségi feladatbank – szűrő + pdf.js nézegető (történelem, matematika, magyar, angol, német) */
+/* Érettségi feladatbank – szűrő + pdf.js nézegető (történelem, matematika, magyar, angol, német, biológia, kémia, fizika, földrajz) */
 (() => {
   'use strict';
   const T = document.body.dataset.t || 'tori';
-  const D = { tori: window.TORI, mat: window.DB_MAT, magy: window.DB_MAGY, ang: window.DB_ANG, nem: window.DB_NEM }[T];
+  const D = { tori: window.TORI, mat: window.DB_MAT, magy: window.DB_MAGY, ang: window.DB_ANG, nem: window.DB_NEM, bio: window.DB_BIO, kem: window.DB_KEM, fiz: window.DB_FIZ, foldr: window.DB_FOLDR }[T];
   const NYELV = T === 'ang' || T === 'nem';
   const TIPUSOS = T === 'magy' || NYELV;
+  // témakörös tárgyak (témasáv + altémakör / feladattípus / vizsgarész szűrő)
+  const TEMAS = ['mat', 'bio', 'kem', 'fiz', 'foldr'].includes(T);
   const $ = (s) => document.querySelector(s);
   if (!D) { const st = $('#stat'); if (st) st.textContent = 'Az adatok nem töltődtek be. Töltsd újra az oldalt.'; return; }
   pdfjsLib.GlobalWorkerOptions.workerSrc = 'pdfjs/pdf.worker.min.js';
@@ -49,6 +51,22 @@
     tag: () => 'm',
     egyseg: 'feladat',
   };
+  const SCI = {
+    bio: { csoport: () => '' },
+    kem: { csoport: () => '' },
+    fiz: { csoport: (f) => ({ I: 'I. Feleletválasztós kérdések', II: f._v.szint === 'e' ? 'II. Témakifejtés' : 'II. Összetett feladatok', III: 'III. Összetett feladatok' }[f.resz] || '') },
+    foldr: { csoport: (f) => ({ I: 'I. összetevő – topográfiai feladatok', II: 'II. összetevő – földrajzi ismeretek' }[f.resz] || '') },
+  };
+  for (const k in SCI) {
+    CFG[k] = {
+      chips: (D && D.temak) || [],
+      tipusNev: () => '',
+      csoport: SCI[k].csoport,
+      szoveg: (f) => [f.cim, ...(f.alt || []), ...(f.ftip || [])],
+      tag: () => 'e',
+      egyseg: 'feladat',
+    };
+  }
   const C = CFG[T];
 
   const vizsgaById = new Map(D.vizsgak.map((v) => [v.id, v]));
@@ -187,7 +205,7 @@
     if (!teljesCache.has(v.id)) teljesCache.set(v.id, { id: `teljes-${v.id}`, _full: true, _v: v, v: v.id, n: '', sor: 0, cim: 'Teljes feladatsor', fl: [1, 0], ut: [1, 0], tks: [], tipus: NYELV ? 'hall' : '' });
     return teljesCache.get(v.id);
   }
-  const pdfNev = (v, d) => `${{ tori: 'tortenelem', mat: 'matek', magy: 'magyar', ang: 'angol', nem: 'nemet' }[T] || T}-erettsegi-${v.id}-${d === 'fl' ? 'feladatlap' : 'utmutato'}.pdf`;
+  const pdfNev = (v, d) => `${{ tori: 'tortenelem', mat: 'matek', magy: 'magyar', ang: 'angol', nem: 'nemet', bio: 'biologia', kem: 'kemia', fiz: 'fizika', foldr: 'foldrajz' }[T] || T}-erettsegi-${v.id}-${d === 'fl' ? 'feladatlap' : 'utmutato'}.pdf`;
   function lista() {
     if (st.mod === 'vizsga') {
       const v = aktualisVizsga();
@@ -206,11 +224,17 @@
   function setVal(id, v) { const el = $(id); if (el) el.value = v; }
   // matek: rész / altémakör / feladattípus listák a többi szűrőhöz igazítva, darabszámmal
   function updateMatSelects() {
-    if (T !== 'mat') return;
-    const reszek = st.szint === 'k' ? [['I', 'I. rész (rövid feladatok)'], ['II.A', 'II. A rész'], ['II.B', 'II. B rész (választható)']] : [['I', 'I. rész'], ['II', 'II. rész (választható)']];
+    if (!TEMAS) return;
+    const RESZEK = {
+      mat: st.szint === 'k' ? [['I', 'I. rész (rövid feladatok)'], ['II.A', 'II. A rész'], ['II.B', 'II. B rész (választható)']] : [['I', 'I. rész'], ['II', 'II. rész (választható)']],
+      fiz: st.szint === 'k' ? [['I', 'I. Feleletválasztós kérdések'], ['II', 'II. Összetett feladatok']] : [['I', 'I. Feleletválasztós kérdések'], ['II', 'II. Témakifejtés'], ['III', 'III. Összetett feladatok']],
+      foldr: st.szint === 'k' ? [['I', 'I. összetevő (topográfia)'], ['II', 'II. összetevő']] : [],
+    };
+    const reszek = RESZEK[T] || [];
     if (st.resz && !reszek.some(([v]) => v === st.resz)) st.resz = '';
     const cR = {}; szurt({ kiveve: 'resz' }).forEach((f) => { cR[f.resz] = (cR[f.resz] || 0) + 1; });
     fillSelect($('#fResz'), [['', 'Mind'], ...reszek.map(([v, t]) => [v, `${t} (${cR[v] || 0})`])], st.resz);
+    { const lr = $('#fResz'); if (lr && lr.closest('label')) lr.closest('label').hidden = !reszek.length; }
     const cA = {}; szurt({ kiveve: 'alt' }).forEach((f) => (f.alt || []).forEach((a) => { cA[a] = (cA[a] || 0) + 1; }));
     if (st.alt && !cA[st.alt]) cA[st.alt] = 0;
     fillSelect($('#fAlt'), [['', 'Mind'], ...Object.keys(cA).sort((a, b) => a.localeCompare(b, 'hu')).map((a) => [a, `${a} (${cA[a]})`])], st.alt);
@@ -282,7 +306,7 @@
     } else {
       f.tks.forEach((k) => { const t = chipByKod.get(k); if (t) meta.push(`<span class="tag ${C.tag(k)}">${esc(t.rovid)}</span>`); });
     }
-    if (T === 'mat' && f.alt && f.alt.length) meta.push(esc(f.alt.slice(0, 2).join(', ')));
+    if (TEMAS && f.alt && f.alt.length) meta.push(esc(f.alt.slice(0, 2).join(', ')));
     const tn = C.tipusNev(f); if (tn) meta.push(tn);
     if (f.pont) meta.push(`${f.pont} pont`);
     return meta.join(' ');
@@ -319,7 +343,7 @@
       b.type = 'button'; b.dataset.id = f.id;
       if (st.aktiv && st.aktiv.id === f.id) b.setAttribute('aria-current', 'true');
       const sub = TIPUSOS && f.leiras ? `<span class="r-sub">${esc(f.leiras)}</span>` : '';
-      b.innerHTML = `<span class="r-no">${f.n}.</span><span class="r-cim">${esc(f.cim)}</span>${sub}<span class="r-meta">${metaTags(f)}</span>`;
+      b.innerHTML = `<span class="r-no">${esc(f.lab || `${f.n}.`)}</span><span class="r-cim">${esc(f.cim)}</span>${sub}<span class="r-meta">${metaTags(f)}</span>`;
       b.onclick = () => open(f);
       li.appendChild(pg.check(f)); li.appendChild(b); frag.appendChild(li);
     });
@@ -490,11 +514,11 @@
     st.aktiv = f;
     if (!keepDoc) st.doc = 'fl';
     document.querySelectorAll('.doc button').forEach((b) => b.setAttribute('aria-selected', b.dataset.doc === st.doc));
-    $('#vCim').textContent = f._full ? `${vizsgaNev(f._v)} – teljes feladatsor` : `${f.n}. ${f.cim}`;
+    $('#vCim').textContent = f._full ? `${vizsgaNev(f._v)} – teljes feladatsor` : `${f.lab || `${f.n}.`} ${f.cim}`;
     const t0 = chipByKod.get(f.tk);
     const parts = [`${vizsgaNev(f._v)}, ${f._v.szint === 'k' ? 'középszint' : 'emelt szint'}`];
     if (T === 'tori') parts.push(C.tipusNev(f), f.pont ? `${f.pont} pont` : '', f.tema || (t0 && t0.nev), f.hiv ? '' : 'saját besorolás');
-    if (T === 'mat') parts.push(f.tks.map((k) => (chipByKod.get(k) || {}).rovid).join(', '), (f.alt || []).join(', '), f.pont ? `${f.pont} pont` : '', f.gepi ? 'gépi témakör-besorolás' : '');
+    if (TEMAS) parts.push(T !== 'mat' ? C.csoport(f) : '', f.tks.map((k) => (chipByKod.get(k) || {}).rovid).join(', '), (f.alt || []).slice(0, 3).join(', '), f.pont ? `${f.pont} pont` : '', f.gepi ? 'gépi témakör-besorolás' : '');
     if (NYELV) parts.push(C.csoport(f), f.pont ? `${f.pont} pont` : '');
     if (T === 'magy') parts.push(f.pont ? `${f.pont} pont` : '', (f.szerzok || []).join(', '));
     if (f._full) parts.splice(1, parts.length, NYELV && f._v.hang ? 'teljes feladatlap és hanganyag' : 'teljes feladatlap');
