@@ -361,7 +361,7 @@ select,input[type=search]{border-radius:8px}
   .lhead{padding:36px 16px 20px}
 }
 .lhead .pill,.brand .pill{display:flex;width:max-content;margin-bottom:6px}
-body[data-t] .pm-header .header-inner{max-width:none}
+/* a fejléc minden oldalon a főoldaléval azonos szélességű */
 
 /* 1–5 értékelés */
 .results li>.pm-rate-chip{flex:none;display:inline-flex;align-items:center;justify-content:center;width:auto;min-width:26px;height:26px;padding:0 5px;margin-left:2px;border-radius:8px;border:2px solid var(--line);background:var(--paper)}
@@ -446,3 +446,11 @@ button.fe-done,.results li.fullexam>button.fe-done{flex:none;display:inline-flex
 .s-fiz .motif{background:repeating-linear-gradient(90deg,transparent 0 22px,var(--paper) 22px 24px),linear-gradient(180deg,var(--patina-soft),var(--patina-soft));position:relative}
 .s-fiz .motif::after{content:'';position:absolute;left:0;right:0;top:50%;height:22px;margin-top:-11px;background:radial-gradient(ellipse 18px 10px at 18px 0,transparent 9px,var(--patina) 10px 11px,transparent 12px) 0 0/36px 22px repeat-x}
 .s-foldr .motif{background:repeating-radial-gradient(ellipse at 70% 60%,var(--patina-soft) 0 7px,var(--paper) 7px 9px,var(--ochre-soft) 9px 15px,var(--paper) 15px 17px)}
+
+/* közös fejléc a papaimatek.hu-val: közösségi ikonok, mobil menücím */
+.pm-header .submenu-title{display:none}
+.pm-header .header-right{gap:8px}
+.pm-social-ic{display:inline-flex;width:36px;height:36px;align-items:center;justify-content:center;border-radius:50%;color:var(--muted);transition:background .15s,color .15s}
+.pm-social-ic:hover{background:var(--hover);color:var(--ink)}
+.pm-social-ic svg{width:17px;height:17px;display:block}
+@media (max-width:900px){.pm-social-ic{display:none}.pm-header .submenu-title{display:block;font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:6px 12px 4px}}
