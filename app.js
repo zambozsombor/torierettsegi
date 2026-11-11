@@ -381,6 +381,8 @@
   }
   let shown = { url: null, width: 0, holders: [], scale: 1, token: 0, obs: null };
   const pagesEl = $('#pages');
+  // a lap szélessége: nyitott listánál legfeljebb 980 px, becsukott listánál legfeljebb 1400 px
+  const lapSzel = () => Math.min(pagesEl.clientWidth - 24, document.body.classList.contains('panel-closed') ? 1400 : 980);
 
   async function buildDoc(url) {
     const token = ++shown.token;
@@ -390,7 +392,7 @@
     if (token !== shown.token) return false;
     const p1 = await pdf.getPage(1);
     const vp1 = p1.getViewport({ scale: 1 });
-    const width = Math.min(pagesEl.clientWidth - 24, 980);
+    const width = lapSzel();
     const scale = width / vp1.width;
     pagesEl.innerHTML = '';
     if (shown.obs) shown.obs.disconnect();
@@ -420,14 +422,14 @@
     h.appendChild(c);
     await page.render({ canvasContext: c.getContext('2d'), viewport: vp, transform: dpr !== 1 ? [dpr, 0, 0, dpr, 0, 0] : null }).promise;
   }
-  async function show() {
+  async function show(keep) {
     const f = st.aktiv; if (!f) return;
     const v = f._v;
     const slice = st.doc === 'fl' && f.fs && !f._full;
     const url = slice ? f.fs[0] : v[st.doc] + (f._full && st.doc === 'fl' ? '?v=2' : '');
     if (!url) { shown.url = null; pagesEl.innerHTML = '<div class="empty"><p>Ehhez a vizsgához nincs javítási útmutató a gyűjteményben.</p></div>'; return; }
     const pos = slice ? [f.fs[1], f.fs[2]] : (f[st.doc] || [1, 0]);
-    const width = Math.min(pagesEl.clientWidth - 24, 980);
+    const width = lapSzel();
     if (shown.url !== url || Math.abs(shown.width - width) > 2) {
       const ok = await buildDoc(url).catch((e) => { pagesEl.innerHTML = '<div class="empty"><p>A feladat nem tölthető be. Ha közben frissült az oldal, töltsd újra.</p><p><button type="button" class="linkbtn" onclick="location.reload()">Oldal újratöltése</button></p></div>'; console.error(e); return false; });
       if (!ok) return;
@@ -437,7 +439,8 @@
     // a cél és a következő oldal azonnal
     await renderPage(shown.pdf, h, shown.scale, shown.token);
     if (shown.holders[pos[0]]) renderPage(shown.pdf, shown.holders[pos[0]], shown.scale, shown.token);
-    pagesEl.scrollTop = h.offsetTop + pos[1] * shown.scale - 10;
+    // keep: a lista ki-/becsukásakor ugyanott marad a nézet (új méretarányban)
+    pagesEl.scrollTop = keep != null ? keep * shown.scale : h.offsetTop + pos[1] * shown.scale - 10;
     if (!shown.observing) { shown.observing = true; requestAnimationFrame(() => shown.holders.forEach((x) => shown.obs.observe(x))); }
     $('#vOpen').href = slice ? f.fs[0] : `${v[st.doc]}#page=${(f[st.doc] || [1])[0]}`;
     // előtöltés a háttérben: a másik fül (útmutató / feladat), valamint a lista előző és következő feladata
@@ -522,7 +525,8 @@
     if (NYELV) parts.push(C.csoport(f), f.pont ? `${f.pont} pont` : '');
     if (T === 'magy') parts.push(f.pont ? `${f.pont} pont` : '', (f.szerzok || []).join(', '));
     if (f._full) parts.splice(1, parts.length, NYELV && f._v.hang ? 'teljes feladatlap és hanganyag' : 'teljes feladatlap');
-    $('#vMeta').textContent = parts.filter(Boolean).join(' | ');
+    const mp = parts.filter(Boolean);
+    $('#vMeta').innerHTML = mp.length ? `<b>${esc(mp[0])}</b>${mp.slice(1).map((p) => ` <i>·</i> ${esc(p)}`).join('')}` : '';
     if (NYELV) hangSav(f);
     document.querySelectorAll('.results button').forEach((b) => b.toggleAttribute('aria-current', b.dataset.id === f.id));
     document.body.classList.add('viewing');
@@ -541,12 +545,33 @@
   $('#vPrev').onclick = () => step(-1);
   $('#vNext').onclick = () => step(1);
   $('#vBack').onclick = () => document.body.classList.remove('viewing');
+  /* ---------- a bal oldali lista és szűrő ki-/becsukása (asztali nézet) ---------- */
+  (function panelKapcsolo() {
+    const bar = $('#viewer .vbar'); if (!bar) return;
+    const btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'ptoggle'; btn.id = 'panelToggle';
+    bar.insertBefore(btn, bar.firstChild);
+    const set = (zart, menti) => {
+      document.body.classList.toggle('panel-closed', zart);
+      btn.setAttribute('aria-expanded', String(!zart));
+      btn.innerHTML = zart ? '<span aria-hidden="true">☰</span> Lista' : '<span aria-hidden="true">‹</span> Lista elrejtése';
+      btn.title = zart ? 'A feladatlista és a szűrők megjelenítése' : 'A feladatlista és a szűrők elrejtése – nagyobb feladatlap';
+      if (menti) try { localStorage.setItem('pm_panel_zart', zart ? '1' : '0'); } catch (e) {}
+    };
+    let zart = false; try { zart = localStorage.getItem('pm_panel_zart') === '1'; } catch (e) {}
+    set(zart, false);
+    btn.onclick = () => {
+      const keep = st.aktiv && shown.scale ? pagesEl.scrollTop / shown.scale : null;
+      set(!document.body.classList.contains('panel-closed'), true);
+      if (st.aktiv) requestAnimationFrame(() => show(keep));
+    };
+  })();
   document.addEventListener('keydown', (e) => {
     if (e.target.matches('input,select')) return;
     if (e.key === 'ArrowRight' && e.altKey) step(1);
     if (e.key === 'ArrowLeft' && e.altKey) step(-1);
   });
-  let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (st.aktiv && Math.abs(shown.width - Math.min(pagesEl.clientWidth - 24, 980)) > 2) show(); }, 250); });
+  let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (st.aktiv && Math.abs(shown.width - lapSzel()) > 2) show(pagesEl.scrollTop / shown.scale); }, 250); });
 
 
   /* ---------- haladás (papaimatek.hu fiók: auth.js / Supabase) ---------- */

@@ -454,3 +454,15 @@ button.fe-done,.results li.fullexam>button.fe-done{flex:none;display:inline-flex
 .pm-social-ic:hover{background:var(--hover);color:var(--ink)}
 .pm-social-ic svg{width:17px;height:17px;display:block}
 @media (max-width:900px){.pm-social-ic{display:none}.pm-header .submenu-title{display:block;font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:6px 12px 4px}}
+
+/* ---- lista ki-/becsukása (asztali nézet) + jól olvasható vizsgaadat (2026-11) ---- */
+.ptoggle{flex:none;align-self:center;display:inline-flex;align-items:center;gap:7px;font:700 .9rem/1 var(--body);color:var(--ink);background:var(--paper);border:1.5px solid var(--line);border-radius:999px;padding:8px 14px;margin-bottom:6px;cursor:pointer;white-space:nowrap}
+.ptoggle:hover{border-color:var(--patina);color:var(--patina)}
+.ptoggle span{font-size:1rem;line-height:1}
+body.panel-closed .work{grid-template-columns:1fr}
+body.panel-closed .work>.panel{display:none}
+body.panel-closed .ptoggle{background:var(--patina);border-color:var(--patina);color:#fff}
+.vtitle span#vMeta,.vtitle span{font-size:.98rem;line-height:1.4;color:#2C3742;font-weight:500;margin-top:2px}
+.vtitle span b{font-weight:700;color:var(--ink)}
+.vtitle span i{font-style:normal;color:#6B7580;padding:0 2px}
+@media (max-width:980px){.ptoggle{display:none}body.panel-closed .work>.panel{display:flex}}
