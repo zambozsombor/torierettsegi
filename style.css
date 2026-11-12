@@ -466,3 +466,19 @@ body.panel-closed .ptoggle{background:var(--patina);border-color:var(--patina);c
 .vtitle span b{font-weight:700;color:var(--ink)}
 .vtitle span i{font-style:normal;color:#6B7580;padding:0 2px}
 @media (max-width:980px){.ptoggle{display:none}body.panel-closed .work>.panel{display:flex}}
+
+/* ---- kompakt nézegető-fejléc: több látszik a feladatlapból (2026-11) ----
+   1. sor: lista gomb · cím · Feladat/Útmutató   2. sor: vizsgaadatok · értékelés, lapozás */
+@media (min-width:981px){
+  .vbar{display:flex;flex-wrap:wrap;align-items:center;gap:2px 12px;padding:6px 12px}
+  .vbar::after{content:'';order:4;flex:0 0 100%;height:0}
+  .vbar .back{display:none}
+  .vbar .ptoggle{order:1;margin:0;padding:6px 12px;font-size:.85rem}
+  .vtitle{display:contents}
+  .vtitle strong{order:2;flex:1 1 0;min-width:0;font-size:1.05rem;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .vbar .doc{order:3;flex:none;align-self:center;margin:0}
+  .vbar .doc button{padding:4px 12px 5px;margin-bottom:0}
+  .vtitle span#vMeta,.vtitle span{order:5;flex:1 1 0;min-width:0;margin:0;font-size:.95rem;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .vbar .nav{order:6;flex:none;padding:0}
+  .nav .er-rate .pri-tog{height:30px}
+}

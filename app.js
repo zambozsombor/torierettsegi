@@ -527,6 +527,7 @@
     if (f._full) parts.splice(1, parts.length, NYELV && f._v.hang ? 'teljes feladatlap és hanganyag' : 'teljes feladatlap');
     const mp = parts.filter(Boolean);
     $('#vMeta').innerHTML = mp.length ? `<b>${esc(mp[0])}</b>${mp.slice(1).map((p) => ` <i>·</i> ${esc(p)}`).join('')}` : '';
+    $('#vCim').title = $('#vCim').textContent; $('#vMeta').title = mp.join(' · ');
     if (NYELV) hangSav(f);
     document.querySelectorAll('.results button').forEach((b) => b.toggleAttribute('aria-current', b.dataset.id === f.id));
     document.body.classList.add('viewing');
