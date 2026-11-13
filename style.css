@@ -482,3 +482,9 @@ body.panel-closed .ptoggle{background:var(--patina);border-color:var(--patina);c
   .vbar .nav{order:6;flex:none;padding:0}
   .nav .er-rate .pri-tog{height:30px}
 }
+
+/* ---- alacsony böngészőablak (pl. nagyított nézet, kis laptop): a lista és a nézegető ne lógjon rá az alatta lévő részre (2026-11) ---- */
+@media (min-width:981px){
+  .panel{max-height:max(calc(100vh - 92px),600px);overflow-y:auto;overscroll-behavior:contain}
+  .viewer{height:max(calc(100vh - 92px),600px)}
+}
